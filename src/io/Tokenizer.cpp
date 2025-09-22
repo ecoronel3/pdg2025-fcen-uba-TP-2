@@ -38,10 +38,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
-
-#include <stdio.h>
 #include "Tokenizer.hpp"
-#include "StrException.hpp"
+
+#include <cstdio>
+#include <stdexcept>
 
 Tokenizer::Tokenizer(): _skip(true) {
 }
@@ -77,8 +77,8 @@ bool Tokenizer::get() {
   return (length()>0)?true:false;
 }
 
-void Tokenizer::get(const string& errMsg) /* throw(StrException *) */ {
-  if(get()==false) throw new StrException(errMsg);
+void Tokenizer::get(const string& errMsg) {
+  if(get()==false) throw std::runtime_error(errMsg);
 }
 
 bool Tokenizer::getline() {

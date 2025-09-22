@@ -34,15 +34,17 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <cstring>
-
 #include "SaverStl.hpp"
-#include "StrException.hpp"
+
+#include <cstring>
+#include <cstdint>
+#include <stdexcept>
 
 #include "wrl/Shape.hpp"
 // #include "wrl/Appearance.hpp"
 // #include "wrl/Material.hpp"
 // #include "core/Faces.hpp"
+
 
 const char* SaverStl::_ext = "stl";
 SaverStl::FileType SaverStl::_fileType = SaverStl::FileType::ASCII;
@@ -100,12 +102,12 @@ bool SaverStl::_saveBinary
 
   written = fwrite(header,1,80,fp);
   if(written!=80)
-    throw new StrException("unable to write binary STL header");
+    throw std::runtime_error("unable to write binary STL header");
 
   uint32_t nTriangles = static_cast<uint32_t>(nF);
   written = fwrite((void*)&nTriangles,1,4,fp);
   if(written<4)
-    throw new StrException("unable to write number of triangles");
+    throw std::runtime_error("unable to write number of triangles");
 
   uint16_t abc = 0x0000; // attribute byte count
 
@@ -119,7 +121,7 @@ bool SaverStl::_saveBinary
     n[2] = normal[3*iN+2];
     written = fwrite(n,1,12,fp);
     if(written!=12)
-      throw new StrException("unable to write normal vector");
+      throw std::runtime_error("unable to write normal vector");
 
     iV0  = coordIndex[4*iF+0];
     v[0] = coord[3*iV0  ];
@@ -127,7 +129,7 @@ bool SaverStl::_saveBinary
     v[2] = coord[3*iV0+2];
     written = fwrite(v,1,12,fp);
     if(written!=12)
-      throw new StrException("unable to write vertex 0");
+      throw std::runtime_error("unable to write vertex 0");
 
     iV1  = coordIndex[4*iF+1];
     v[0] = coord[3*iV1  ];
@@ -135,7 +137,7 @@ bool SaverStl::_saveBinary
     v[2] = coord[3*iV1+2];
     written = fwrite(v,1,12,fp);
     if(written!=12)
-      throw new StrException("unable to write vertex 1");
+      throw std::runtime_error("unable to write vertex 1");
 
     iV2  = coordIndex[4*iF+2];
     v[0] = coord[3*iV2  ];
@@ -143,11 +145,11 @@ bool SaverStl::_saveBinary
     v[2] = coord[3*iV2+2];
     written = fwrite(v,1,12,fp);
     if(written!=12)
-      throw new StrException("unable to write vertex 2");
+      throw std::runtime_error("unable to write vertex 2");
 
     written = fwrite(&abc,1,2,fp);
     if(written<2)
-      throw new StrException("unable to write atribute byte count");
+      throw std::runtime_error("unable to write atribute byte count");
 
   }
 
@@ -161,20 +163,20 @@ bool SaverStl::save(const char* filename, SceneGraph& wrl) const {
   try {
     // Check these conditions
     if(filename==(char*)0)
-      throw new StrException("empty filename");
+      throw std::runtime_error("empty filename");
     // 1) the SceneGraph should have a single child
     if(wrl.getNumberOfChildren()!=1)
-      throw new StrException("number of SceneGraph children != 1");
+      throw std::runtime_error("number of SceneGraph children != 1");
     // 2) the child should be a Shape node
     Node* child_0 = wrl[0];
     Shape* shape = dynamic_cast<Shape*>(child_0);
     if(shape==(Shape*)0)
-      throw new StrException("first SceneGraph child not a Shape node");
+      throw std::runtime_error("first SceneGraph child not a Shape node");
     // 3) the geometry of the Shape node should be an IndexedFaceSet node
     Node* geometry = shape->getGeometry();
     IndexedFaceSet* ifs = dynamic_cast<IndexedFaceSet*>(geometry);
     if(ifs==(IndexedFaceSet*)0)
-      throw new StrException("Shape geometry not an IndexedFaceSet");
+      throw std::runtime_error("Shape geometry not an IndexedFaceSet");
     // - construct an instance of the Faces class from the IndexedFaceSet
     // int nV = ifs->getNumberOfCoord();
     // vector<float>& coord      = ifs->getCoord();
@@ -189,10 +191,10 @@ bool SaverStl::save(const char* filename, SceneGraph& wrl) const {
     // Faces faces(nV,coordIndex);
     // int nF = faces.getNumberOfFaces();
     // if(nF<1)
-    //   throw new StrException("has no faces");
+    //   throw std::runtime_error("has no faces");
     // for(int iF=0;iF<nF;iF++) {
     //   if(faces.getFaceSize(iF)!=3)
-    //     throw new StrException("is not a triangle mesh");
+    //     throw std::runtime_error("is not a triangle mesh");
     // }
 
     int i0,i1,nFs;
@@ -200,7 +202,7 @@ bool SaverStl::save(const char* filename, SceneGraph& wrl) const {
       if(coordIndex[i1]>=0) continue;
       nFs = i1-i0; // size of face
       if(nFs!=3)
-        throw new StrException("is not a triangle mesh");
+        throw std::runtime_error("is not a triangle mesh");
       i0=i1+1;
     }
 
@@ -209,7 +211,7 @@ bool SaverStl::save(const char* filename, SceneGraph& wrl) const {
     bool npf_non_indexed = (nb==IndexedFaceSet::Binding::PB_PER_FACE);
     bool npf_indexed     = (nb==IndexedFaceSet::Binding::PB_PER_FACE_INDEXED);
     if(npf_non_indexed==false && npf_indexed==false)
-        throw new StrException("does not have normals per face");
+        throw std::runtime_error("does not have normals per face");
 
     // default solid name
     char solidname[256] = "solidname";
@@ -226,10 +228,10 @@ bool SaverStl::save(const char* filename, SceneGraph& wrl) const {
       // if (all the conditions are satisfied) try to open the file
       fp = fopen(filename,"w");
       if( fp==(FILE*)0)
-        throw new StrException("unable to open ASCII STL outputfile");
+        throw std::runtime_error("unable to open ASCII STL outputfile");
 
       if(_saveAscii(fp,solidname,*ifs)==false)
-        throw new StrException("unable to save ASCII STL outputfile");
+        throw std::runtime_error("unable to save ASCII STL outputfile");
     
       fclose(fp);
 
@@ -238,10 +240,10 @@ bool SaverStl::save(const char* filename, SceneGraph& wrl) const {
       // if (all the conditions are satisfied) try to open the file
       fp = fopen(filename,"wb");
       if( fp==(FILE*)0)
-        throw new StrException("unable to open BINARY STL outputfile");
+        throw std::runtime_error("unable to open BINARY STL outputfile");
 
       if(_saveBinary(fp,solidname,*ifs)==false)
-        throw new StrException("unable to save BINARY STL outputfile");
+        throw std::runtime_error("unable to save BINARY STL outputfile");
 
       fclose(fp);
 
@@ -249,11 +251,10 @@ bool SaverStl::save(const char* filename, SceneGraph& wrl) const {
     
     success = true;
     
-  } catch(StrException* e) { 
+  } catch(const std::exception& e) {
     
     if(fp!=(FILE*)0) fclose(fp);
-    fprintf(stderr,"SaverStl | ERROR | %s\n",e->what());
-    delete e;
+    fprintf(stderr,"SaverStl | ERROR | %s\n",e.what());
   }
   return success;
 }

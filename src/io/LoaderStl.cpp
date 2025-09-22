@@ -40,13 +40,13 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
+#include "LoaderStl.hpp"
 
 #include <cstdio>
 #include <cstring>
-#include "TokenizerFile.hpp"
-#include "LoaderStl.hpp"
-#include "StrException.hpp"
+#include <stdexcept>
 
+#include "TokenizerFile.hpp"
 #include "wrl/Shape.hpp"
 #include "wrl/Appearance.hpp"
 #include "wrl/Material.hpp"
@@ -123,15 +123,15 @@ bool LoaderStl::_loadFacetBinary
 (FILE* fp, Vec3f& n, Vec3f& v1, Vec3f& v2, Vec3f& v3, uint16_t* abc) {
 
   if(fread(&(n[0]),1,12,fp)<12)
-    throw new StrException("unable to read normal vector");
+    throw std::runtime_error("unable to read normal vector");
   if(fread(&(v1[0]),1,12,fp)<12)
-    throw new StrException("unable to read vertex 0");
+    throw std::runtime_error("unable to read vertex 0");
   if(fread(&(v2[0]),1,12,fp)<12)
-    throw new StrException("unable to read vertex 1");
+    throw std::runtime_error("unable to read vertex 1");
   if(fread(&(v3[0]),1,12,fp)<12)
-    throw new StrException("unable to read vertex 2");
+    throw std::runtime_error("unable to read vertex 2");
   if(fread(abc,1,2,fp)<2)
-    throw new StrException("unable to read atribute byte count");
+    throw std::runtime_error("unable to read attribute byte count");
 
   return true;
 }
@@ -142,7 +142,7 @@ bool LoaderStl::load(const char* filename, SceneGraph& wrl) {
   FILE* fp = (FILE*)0;
   try {
     // open the file
-    if(filename==(char*)0) throw new StrException("filename==null");
+    if(filename==(char*)0) throw std::runtime_error("filename==null");
 
     // allocate binary header and initialize to zero
     char header[80];
@@ -150,18 +150,18 @@ bool LoaderStl::load(const char* filename, SceneGraph& wrl) {
     // determine if file is ascii or binary
     fp = fopen(filename,"rb");
     if(fp==(FILE*)0)
-      throw new StrException("unable to open file for binary read");
+      throw std::runtime_error("unable to open file for binary read");
     if(fread(header,1,5,fp)<5)
-      throw new StrException("unable to read first characters of file");
+      throw std::runtime_error("unable to read first characters of file");
     bool binary = (strncmp(header,"solid",5)!=0);
     if(binary) {
       // read the rest of the header
       if(fread(header+5,1,75,fp)<75)
-        throw new StrException("unable to read 75 next characters of file");
+        throw std::runtime_error("unable to read 75 next characters of file");
       // read number of triangles
       uint32_t nTriangles = 0;
       if(fread(&nTriangles,1,4,fp)<4)
-        throw new StrException("unable to read number of triangles");
+        throw std::runtime_error("unable to read number of triangles");
 
       IndexedFaceSet* ifs = _initializeSceneGraph(filename,wrl);
       // get references to the coordIndex, coord, and normal arrays
@@ -205,16 +205,16 @@ bool LoaderStl::load(const char* filename, SceneGraph& wrl) {
       fclose(fp);
       fp = fopen(filename,"r");
       if(fp==(FILE*)0)
-        throw new StrException("unable to open ASCII STL file");
+        throw std::runtime_error("unable to open ASCII STL file");
         
       // use the io/TokenizerFile class to parse the input ascii file
       TokenizerFile tkn(fp);
       // first token should be "solid"
       if(tkn.expecting("solid")==false)
-        throw new StrException("not an ASCII STL file");
+        throw std::runtime_error("not an ASCII STL file");
       // second token should be the solid name
       if(tkn.get()==false)
-        throw new StrException("unable to get solid name");
+        throw std::runtime_error("unable to get solid name");
       string stlName = tkn; // second token should be the solid name
 
       // create the scene graph structure :
@@ -256,11 +256,10 @@ bool LoaderStl::load(const char* filename, SceneGraph& wrl) {
       fclose(fp);
     }
  
-  } catch(StrException* e) { 
+  } catch(const std::exception& e) {
 
     if(fp!=(FILE*)0) fclose(fp);
-    fprintf(stderr,"LoaderStl | ERROR | %s\n",e->what());
-    delete e;
+    fprintf(stderr,"LoaderStl | ERROR | %s\n",e.what());
     wrl.clear();
     wrl.setUrl("");
 

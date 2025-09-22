@@ -40,14 +40,16 @@
 // DAMAGE.
 
 // #include <stdio.h>
+#include "LoaderPly.hpp"
+
 #include <iostream>
 
 using namespace std;
 
-#include "LoaderPly.hpp"
+
 #include "TokenizerFile.hpp"
 #include "TokenizerString.hpp"
-#include "StrException.hpp"
+
 #include <wrl/Shape.hpp>
 #include <wrl/Appearance.hpp>
 #include <wrl/Material.hpp>
@@ -154,7 +156,7 @@ void LoaderPly::addBinaryValue
     break; 
   case Ply::Element::Property::NONE:
     {
-      throw new StrException("unexpected NONE binary value tyde");
+      throw std::runtime_error("unexpected NONE binary value tyde");
     }
   }
 }
@@ -235,7 +237,7 @@ void LoaderPly::addAsciiValue
     break;
   case Ply::Element::Property::NONE:
     {
-      throw new StrException("unexpected NONE ascii value type");
+      throw std::runtime_error("unexpected NONE ascii value type");
     }
   }
 }
@@ -254,17 +256,17 @@ size_t LoaderPly::readHeader(FILE* fp, Ply& ply, const string indent) {
 
     // read first line
     if(ftkn.getline()==false)
-      throw new StrException("cannot read first line");
+      throw std::runtime_error("cannot read first line");
 
     // first line should be "ply"
     if(ftkn.compare(0,3,"ply")!=0)
-      throw new StrException("this is not a ply file");
+      throw std::runtime_error("this is not a ply file");
 
     // APP->log(QString("%1  ply").arg(indent.c_str()));
 
     // second line should be "format"
     if(ftkn.getline()==false)
-      throw new StrException("cannot read scond line");
+      throw std::runtime_error("cannot read scond line");
 
     if(ftkn == "format ascii 1.0")
       ply._dataType = Ply::DataType::ASCII;
@@ -273,7 +275,7 @@ size_t LoaderPly::readHeader(FILE* fp, Ply& ply, const string indent) {
     else if(ftkn == "format binary_big_endian 1.0")
       ply._dataType = Ply::DataType::BINARY_BIG_ENDIAN;
     else
-      throw new StrException("cannot parse second line");
+      throw std::runtime_error("cannot parse second line");
 
     // APP->log(QString("%1  format %2")
     //          .arg(indent.c_str())
@@ -294,7 +296,7 @@ size_t LoaderPly::readHeader(FILE* fp, Ply& ply, const string indent) {
         // APP->log(QString("%1  obj_info").arg(indent.c_str()));
 
         if(ftkn.getline()==false)
-          throw new StrException("cannot read rest of line");
+          throw std::runtime_error("cannot read rest of line");
 
         // APP->log(QString("%1    \"%2\"").arg(indent.c_str()).arg(ftkn.c_str()));
 
@@ -303,7 +305,7 @@ size_t LoaderPly::readHeader(FILE* fp, Ply& ply, const string indent) {
       } else if(ftkn=="comment") {
 
         if(ftkn.getline()==false)
-          throw new StrException("cannot read rest of line");
+          throw std::runtime_error("cannot read rest of line");
 
         // length("TextureFile")=11
         if(ftkn.compare(0,11,"TextureFile")==0) {
@@ -335,14 +337,14 @@ size_t LoaderPly::readHeader(FILE* fp, Ply& ply, const string indent) {
       } else if(ftkn=="element") {
 
         if(ftkn.get()==false)
-          throw new StrException("expecting element name");
+          throw std::runtime_error("expecting element name");
          string elementName = ftkn;
 
         if(ftkn.get()==false)      
-          throw new StrException("expecting element nRecords");
+          throw std::runtime_error("expecting element nRecords");
         int nRecords = atoi(ftkn.c_str());
         if(nRecords<0)
-          throw new StrException("expecting non-negative element nRecords");
+          throw std::runtime_error("expecting non-negative element nRecords");
     
         // APP->log(QString("%1  element %2 %3")
         //          .arg(indent.c_str())
@@ -359,24 +361,24 @@ size_t LoaderPly::readHeader(FILE* fp, Ply& ply, const string indent) {
         string                       propertyName;
     
         if(ftkn.get()==false)      
-          throw new StrException("early end of property");
+          throw std::runtime_error("early end of property");
 
         if(ftkn.equals("list")) {
 
           list = true;
 
           if(ftkn.get()==false)      
-            throw new StrException("expecting listType");
+            throw std::runtime_error("expecting listType");
 
           listType = Ply::Element::Property::parseType(ftkn);
 
           if(ftkn.get()==false)      
-            throw new StrException("expecting propertyType");
+            throw std::runtime_error("expecting propertyType");
 
           propertyType = Ply::Element::Property::parseType(ftkn);
 
           if(ftkn.get()==false)      
-            throw new StrException("expecting property name");
+            throw std::runtime_error("expecting property name");
 
           propertyName = ftkn;
 
@@ -394,7 +396,7 @@ size_t LoaderPly::readHeader(FILE* fp, Ply& ply, const string indent) {
           propertyType = Ply::Element::Property::parseType(ftkn);
 
           if(ftkn.get()==false)      
-            throw new StrException("expecting property name");
+            throw std::runtime_error("expecting property name");
 
           propertyName = ftkn;
 
@@ -409,7 +411,7 @@ size_t LoaderPly::readHeader(FILE* fp, Ply& ply, const string indent) {
 
       } else {
         if(ftkn.getline()==false)
-          throw new StrException("cannot read rest of line");
+          throw std::runtime_error("cannot read rest of line");
 
         // APP->log(QString("%1  line=\"%2\"")
         //          .arg(indent.c_str())
@@ -527,7 +529,7 @@ size_t LoaderPly::readBinaryData(FILE* fp, Ply& ply, const string indent) {
 
             if(nBytesRead<nBytesListCount) {
               char s[128]; snprintf(s,128,"end of file in record %d",iRecord);
-              throw new StrException(string(s));
+              throw std::runtime_error(string(s));
             }
 
             nBytesRecord += nBytesRead;
@@ -560,7 +562,7 @@ size_t LoaderPly::readBinaryData(FILE* fp, Ply& ply, const string indent) {
               nList = static_cast<int>(buff.ui[0]&0xff);
               break;
             default:
-              throw new StrException("unexpected list type");
+              throw std::runtime_error("unexpected list type");
             }
 
             if(wrlMode==false || propertyName!="coordIndex")
@@ -574,7 +576,7 @@ size_t LoaderPly::readBinaryData(FILE* fp, Ply& ply, const string indent) {
                 (fread(&(buff.c),1,static_cast<size_t>(nBytesListValue),fp));
               if(nBytesRead<nBytesListValue) {
                 char s[128]; snprintf(s,128,"end of file in record %d",iRecord);
-                throw new StrException(string(s));
+                throw std::runtime_error(string(s));
               }
 
               nBytesRecord += nBytesRead;
@@ -604,7 +606,7 @@ size_t LoaderPly::readBinaryData(FILE* fp, Ply& ply, const string indent) {
                   (fread(&(buff.c),1,static_cast<size_t>(nBytesValue),fp));
                 if(nBytesRead<nBytesValue) {
                   char s[128]; snprintf(s,128,"end of file in record %d",iRecord);
-                  throw new StrException(string(s));
+                  throw std::runtime_error(string(s));
                 }
 
                 nBytesRecord += nBytesRead;
@@ -624,7 +626,7 @@ size_t LoaderPly::readBinaryData(FILE* fp, Ply& ply, const string indent) {
                 (fread(&(buff.c),1,static_cast<size_t>(nBytesValue),fp));
               if(nBytesRead<nBytesValue) {
                 char s[128]; snprintf(s,128,"end of file in record %d",iRecord);
-                throw new StrException(string(s));
+                throw std::runtime_error(string(s));
               }
               nBytesRecord += nBytesRead;
               addBinaryValue(buff,propertyType,swapBytes,value);
@@ -707,7 +709,7 @@ size_t LoaderPly::readAsciiData(FILE* fp, Ply& ply, const string indent) {
           // one record per line
           if(ftkn.getline()==false) {
             char s[128]; snprintf(s,128,"found empty record %d",iRecord);
-            throw new StrException(string(s));
+            throw std::runtime_error(string(s));
           }
 
           TokenizerString stkn(ftkn);
@@ -725,7 +727,7 @@ size_t LoaderPly::readAsciiData(FILE* fp, Ply& ply, const string indent) {
               if(stkn.get()==false) {
                 char s[128];
                 snprintf(s,128,"end of line in property record %d",iRecord);
-                throw new StrException(string(s));
+                throw std::runtime_error(string(s));
               }
 
               nList = atoi(stkn.c_str());
@@ -739,7 +741,7 @@ size_t LoaderPly::readAsciiData(FILE* fp, Ply& ply, const string indent) {
                  if(stkn.get()==false) {
                    char s[128];
                    snprintf(s,128,"end of line in property record %d",iRecord);
-                   throw new StrException(string(s));
+                   throw std::runtime_error(string(s));
                  }
                  addAsciiValue(stkn,propertyType,value);
                }
@@ -759,7 +761,7 @@ size_t LoaderPly::readAsciiData(FILE* fp, Ply& ply, const string indent) {
                 if(stkn.get()==false) {
                   char s[128];
                   snprintf(s,128,"end of line in property record %d",iRecord);
-                  throw new StrException(string(s));
+                  throw std::runtime_error(string(s));
                 }
                 addAsciiValue(stkn,propertyType,value);
                 if(wrlMode && propertyName=="color") {
@@ -804,10 +806,10 @@ bool LoaderPly::load(const char* filename, Ply & ply, const string indent) {
 
     // open the file for ascii reading
     if(filename==nullptr)
-      throw new StrException("no filename");
+      throw std::runtime_error("no filename");
     fp = fopen(filename,"r");
     if(fp==nullptr)
-      throw new StrException("unable to open file for ascii reading");
+      throw std::runtime_error("unable to open file for ascii reading");
 
     size_t nBytesHeader = readHeader(fp,ply,indent+"  ");
 
@@ -832,11 +834,11 @@ bool LoaderPly::load(const char* filename, Ply & ply, const string indent) {
       fclose(fp);
       fp = fopen(filename,"rb");
       if(fp==nullptr)
-        throw new StrException("unable to open file to read binary data");
+        throw std::runtime_error("unable to open file to read binary data");
 
       // skip header
       if(fseek(fp,static_cast<long>(nBytesHeader),SEEK_SET)!=0)
-        throw new StrException("failed to skip header to read binary data");
+        throw std::runtime_error("failed to skip header to read binary data");
 
       nBytesData = readBinaryData(fp,ply,indent+"  ");
 
@@ -855,12 +857,11 @@ bool LoaderPly::load(const char* filename, Ply & ply, const string indent) {
 
     success = true;
 
-  } catch(StrException* e) { 
+  } catch(const std::exception& e) {
 
     ply.clear();
     if(fp) fclose(fp);
     // APP->log(QString("%1  %2").arg(indent.c_str()).arg(e->what()));
-    delete e;
   }
 
   // APP->log(QString("%1} LoaderPly::load()").arg(indent.c_str()));
@@ -885,7 +886,7 @@ bool LoaderPly::load
     ply = new Ply();
 
     if(load(filename,*ply,"  ")==false)
-      throw new StrException("load(const char*,Ply&)==false");
+      throw std::runtime_error("load(const char*,Ply&)==false");
 
     // insert into scene graph
 
@@ -914,11 +915,10 @@ bool LoaderPly::load
 
     success = true;
 
-  } catch(StrException* e) { 
+  } catch(const std::exception& e) {
 
     if(ply) delete ply;
     // APP->log(QString("  %1").arg(e->what()));
-    delete e;
   }
 
   // APP->log("}");

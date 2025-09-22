@@ -37,6 +37,8 @@
 #ifndef _LOADER_STL_HPP_
 #define _LOADER_STL_HPP_
 
+#include <cstdint>
+
 #include "Loader.hpp"
 #include "TokenizerFile.hpp"
 
