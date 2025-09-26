@@ -43,21 +43,19 @@
 
 #include <iostream>
 
-#include <wrl/Shape.hpp>
-#include <wrl/Appearance.hpp>
-#include <wrl/Material.hpp>
-#include <wrl/IndexedFaceSet.hpp>
-#include <wrl/IndexedFaceSetPly.hpp>
-#include <util/Endian.hpp>
-#include <util/CastMacros.hpp>
-
-using namespace std;
+#include "wrl/Shape.hpp"
+#include "wrl/Appearance.hpp"
+#include "wrl/Material.hpp"
+#include "wrl/IndexedFaceSet.hpp"
+#include "wrl/IndexedFaceSetPly.hpp"
+#include "util/Endian.hpp"
+#include "util/CastMacros.hpp"
 
 const char*   SaverPly::_ext = "ply";
 Ply::DataType SaverPly::_defaultDataType = Ply::DataType::BINARY_LITTLE_ENDIAN;
 bool SaverPly::_skipAlpha = true;
-ostream* SaverPly::_ostrm = nullptr;
-string SaverPly::_indent = "";
+std::ostream* SaverPly::_ostrm = nullptr;
+std::string SaverPly::_indent = "";
 
 //////////////////////////////////////////////////////////////////////
 SaverPly::SaverPly():_dataType(_defaultDataType) {
@@ -88,13 +86,13 @@ void SaverPly::setSkipAlpha(const bool value) {
 
 //////////////////////////////////////////////////////////////////////
 // static
-void SaverPly::setOstream(ostream* ostrm) {
+void SaverPly::setOstream(std::ostream* ostrm) {
   _ostrm = ostrm;
 }
 
 //////////////////////////////////////////////////////////////////////
 // static
-void SaverPly::setIndent(const string s) {
+void SaverPly::setIndent(const std::string& s) {
   _indent = s;
 }
 
@@ -115,9 +113,7 @@ bool SaverPly::sameAsSystemEndian(Ply::DataType fileEndian) {
 
 //////////////////////////////////////////////////////////////////////
 // static
-bool SaverPly::writeBinaryValue
-(FILE * fp, const Ply::Element::Property::Type listType,
- const bool swapBytes, int nList) {
+bool SaverPly::writeBinaryValue(FILE * fp, const Ply::Element::Property::Type listType, const bool swapBytes, int nList) {
   bool success = false;
   if(fp!=nullptr) {
     Endian::SingleValueBuffer svb;
@@ -165,9 +161,12 @@ bool SaverPly::writeBinaryValue
 
 //////////////////////////////////////////////////////////////////////
 // static
-bool SaverPly::writeBinaryValue
-(FILE * fp, const Ply::Element::Property::Type propertyType,
- const bool swapBytes, void* value, int index) {
+bool SaverPly::writeBinaryValue(FILE * fp,
+  const Ply::Element::Property::Type propertyType,
+  const bool swapBytes,
+  void* value,
+  int index) {
+
   bool success = false;
   if(fp!=nullptr) {
     Endian::SingleValueBuffer svb;
@@ -175,21 +174,21 @@ bool SaverPly::writeBinaryValue
     case Ply::Element::Property::Type::CHAR:
     case Ply::Element::Property::Type::INT8:
       {
-        svb.c[0] = (*static_cast<vector<char>*>(value))[UL(index)];
+        svb.c[0] = (*static_cast<std::vector<char>*>(value))[UL(index)];
         success = (fwrite(&(svb.c[0]),1,1,fp)==2);
       }
       break;
     case Ply::Element::Property::Type::UCHAR:
     case Ply::Element::Property::Type::UINT8:
       {
-        svb.uc[0] = (*static_cast<vector<uchar>*>(value))[UL(index)];
+        svb.uc[0] = (*static_cast<std::vector<uchar>*>(value))[UL(index)];
         success = (fwrite(&(svb.uc[0]),1,1,fp)==2);
       }
       break;
     case Ply::Element::Property::Type::SHORT:
     case Ply::Element::Property::Type::INT16:
       {
-        svb.s[0] = (*static_cast<vector<short>*>(value))[UL(index)];
+        svb.s[0] = (*static_cast<std::vector<short>*>(value))[UL(index)];
         if(swapBytes) Endian::swapShort(svb);
         success = (fwrite(&(svb.s[0]),1,2,fp)==2);
       }
@@ -197,7 +196,7 @@ bool SaverPly::writeBinaryValue
     case Ply::Element::Property::Type::USHORT:
     case Ply::Element::Property::Type::UINT16:
       {
-        svb.us[0] = (*static_cast<vector<ushort>*>(value))[UL(index)];
+        svb.us[0] = (*static_cast<std::vector<ushort>*>(value))[UL(index)];
         if(swapBytes) Endian::swapUShort(svb);
         success = (fwrite(&(svb.us[0]),1,2,fp)==2);
       }
@@ -205,7 +204,7 @@ bool SaverPly::writeBinaryValue
     case Ply::Element::Property::Type::INT:
     case Ply::Element::Property::Type::INT32:
       {
-        svb.i[0] = (*static_cast<vector<int>*>(value))[UL(index)];
+        svb.i[0] = (*static_cast<std::vector<int>*>(value))[UL(index)];
         if(swapBytes) Endian::swapInt(svb);
         success = (fwrite(&(svb.i[0]),1,4,fp)==4);
       }
@@ -213,7 +212,7 @@ bool SaverPly::writeBinaryValue
     case Ply::Element::Property::Type::UINT:
     case Ply::Element::Property::Type::UINT32:
       {
-        svb.ui[0] = (*static_cast<vector<uint>*>(value))[UL(index)];
+        svb.ui[0] = (*static_cast<std::vector<uint>*>(value))[UL(index)];
         if(swapBytes) Endian::swapUInt(svb);
         success = (fwrite(&(svb.ui[0]),1,4,fp)==4);
       }
@@ -227,7 +226,7 @@ bool SaverPly::writeBinaryValue
           (propertyType==Ply::Element::Property::Type::FLOAT32_3)?3:
           (propertyType==Ply::Element::Property::Type::FLOAT32_2)?2:1;
         for(int i=0;i<n;i++) {
-          svb.f[0] = (*static_cast<vector<float>*>(value))[n*UL(index)+i];
+          svb.f[0] = (*static_cast<std::vector<float>*>(value))[n*UL(index)+i];
           if(swapBytes) Endian::swapFloat(svb);
           success = (fwrite(&(svb.f[0]),1,4,fp)==4);
           if(success==false) break;
@@ -237,7 +236,7 @@ bool SaverPly::writeBinaryValue
     case Ply::Element::Property::Type::DOUBLE:
     case Ply::Element::Property::Type::FLOAT64:
       {
-        svb.d[0] = (*static_cast<vector<double>*>(value))[UL(index)];
+        svb.d[0] = (*static_cast<std::vector<double>*>(value))[UL(index)];
         if(swapBytes) Endian::swapDouble(svb);
         success = (fwrite(&(svb.d[0]),1,8,fp)==8);
       }
@@ -258,7 +257,7 @@ bool SaverPly::writeBinaryColorValue
   if(fp!=nullptr) {
     Endian::SingleValueBuffer svb;
     for(int i=0;i<3;i++) {
-      float& f = (*static_cast<vector<float>*>(value))[3*UL(index)+i]; 
+      float& f = (*static_cast<std::vector<float>*>(value))[3*UL(index)+i];
       svb.uc[0] = static_cast<uchar>(255.0*f); 
       success = (fwrite(&(svb.uc[0]),1,1,fp)==1);
       if(success==false) break;
@@ -278,42 +277,42 @@ bool SaverPly::writeAsciiValue
     case Ply::Element::Property::Type::CHAR:
     case Ply::Element::Property::Type::INT8:
       {
-        char & c = (*static_cast<vector<char>*>(value))[UL(index)];
+        char & c = (*static_cast<std::vector<char>*>(value))[UL(index)];
         success = (fprintf(fp,"%d",c)>0);
       }
       break;
     case Ply::Element::Property::Type::UCHAR:
     case Ply::Element::Property::Type::UINT8:
       {
-        uchar & uc = (*static_cast<vector<uchar>*>(value))[UL(index)];
+        uchar & uc = (*static_cast<std::vector<uchar>*>(value))[UL(index)];
         success = (fprintf(fp,"%d",uc)>0);
       }
       break;
     case Ply::Element::Property::Type::SHORT:
     case Ply::Element::Property::Type::INT16:
       {
-        short & s = (*static_cast<vector<short>*>(value))[UL(index)];
+        short & s = (*static_cast<std::vector<short>*>(value))[UL(index)];
         success = (fprintf(fp,"%d",s)>0);
       }
       break;
     case Ply::Element::Property::Type::USHORT:
     case Ply::Element::Property::Type::UINT16:
       {
-        ushort & us = (*static_cast<vector<ushort>*>(value))[UL(index)];
+        ushort & us = (*static_cast<std::vector<ushort>*>(value))[UL(index)];
         success = (fprintf(fp,"%d",us)>0);
       }
       break;
     case Ply::Element::Property::Type::INT:
     case Ply::Element::Property::Type::INT32:
       {
-        int & i = (*static_cast<vector<int>*>(value))[UL(index)];
+        int & i = (*static_cast<std::vector<int>*>(value))[UL(index)];
         success = (fprintf(fp,"%d",i)>0);
       }
       break;
     case Ply::Element::Property::Type::UINT:
     case Ply::Element::Property::Type::UINT32:
       {
-        uint & ui = (*static_cast<vector<uint>*>(value))[UL(index)];
+        uint & ui = (*static_cast<std::vector<uint>*>(value))[UL(index)];
         success = (fprintf(fp,"%d",ui)>0);
       }
       break;
@@ -326,7 +325,7 @@ bool SaverPly::writeAsciiValue
           (propertyType==Ply::Element::Property::Type::FLOAT32_3)?3:
           (propertyType==Ply::Element::Property::Type::FLOAT32_2)?2:1;
         for(int i=0;i<n;i++) {
-          float & f = (*static_cast<vector<float>*>(value))[i+n*UL(index)];
+          float & f = (*static_cast<std::vector<float>*>(value))[i+n*UL(index)];
           success = (fprintf(fp,"%f ",D(f))>0);
           if(success==false) break;
         }
@@ -335,7 +334,7 @@ bool SaverPly::writeAsciiValue
     case Ply::Element::Property::Type::DOUBLE:
     case Ply::Element::Property::Type::FLOAT64:
       {
-        double & d = (*static_cast<vector<double>*>(value))[UL(index)];
+        double & d = (*static_cast<std::vector<double>*>(value))[UL(index)];
         success = (fprintf(fp,"%f",d)>0);
       }
       break; 
@@ -349,12 +348,11 @@ bool SaverPly::writeAsciiValue
 //////////////////////////////////////////////////////////////////////
 // static
   
-bool SaverPly::writeAsciiColorValue
-(FILE * fp, void* value, int index) {
+bool SaverPly::writeAsciiColorValue(FILE * fp, void* value, int index) {
   bool success = false;
   if(fp!=nullptr) {
     for(int i=0;i<3;i++) {
-      float& f = (*static_cast<vector<float>*>(value))[3*UL(index)+i]; 
+      float& f = (*static_cast<std::vector<float>*>(value))[3*UL(index)+i];
       uchar uc = static_cast<uchar>(255.0*f); 
       success = (fprintf(fp,"%3d ",uc)>0);
       if(success==false) break;
@@ -365,9 +363,7 @@ bool SaverPly::writeAsciiColorValue
 
 //////////////////////////////////////////////////////////////////////
 // static
-bool
-SaverPly::writeHeader
-(FILE *fp, Ply& ply, const string indent, Ply::DataType dataType) {
+bool SaverPly::writeHeader(FILE *fp, Ply& ply, const std::string indent, Ply::DataType dataType) {
 
   bool success = false;
 
@@ -377,7 +373,8 @@ SaverPly::writeHeader
 
   try {
 
-    if(fp==nullptr) throw std::runtime_error("fp==nullptr");
+    if(fp==nullptr)
+      throw std::runtime_error("fp==nullptr");
 
     uint i;
     int iElement,iProperty,nElements,nProperties,nRecords;
@@ -385,7 +382,7 @@ SaverPly::writeHeader
     Ply::Element::Property*      property     = nullptr;
     Ply::Element::Property::Type listType     = Ply::Element::Property::Type::NONE;
     Ply::Element::Property::Type propertyType = Ply::Element::Property::Type::NONE;
-    string elementName, propertyName, line;
+    std::string elementName, propertyName, line;
 
     line = "ply";
     if(_ostrm!=nullptr) {
@@ -424,7 +421,7 @@ SaverPly::writeHeader
     fprintf(fp,"comment generated by DGP2025 from Ply\n");
 
     if(ply.getSkipComments()==false) {
-      const vector<string>& comment = ply.getComments();
+      const std::vector<std::string>& comment = ply.getComments();
       for(i=0;i<comment.size();i++) {
         line = comment[i];
         // TODO Sat Nov 30 13:20:44 2019
@@ -562,9 +559,7 @@ SaverPly::writeHeader
 
 //////////////////////////////////////////////////////////////////////
 // static
-bool
-SaverPly::writeBinaryData
-(FILE * fp, Ply& ply, const string indent, Ply::DataType dataType) {
+bool SaverPly::writeBinaryData(FILE * fp, Ply& ply, const std::string indent, Ply::DataType dataType) {
 
   bool success = false;
 
@@ -583,7 +578,7 @@ SaverPly::writeBinaryData
     void* propertyValue;
     int iElement,iList0,iList1,iList,nList,k0,k1;
     int iProperty,iRecord,nElements,nProperties,nRecords;
-    string name,propertyName;
+    std::string name,propertyName;
 
     nElements = ply.getNumberOfElements();
     if(_ostrm!=nullptr) {
@@ -680,8 +675,7 @@ SaverPly::writeBinaryData
 //////////////////////////////////////////////////////////////////////
 // static
 bool
-SaverPly::writeAsciiData
-(FILE * fp, Ply& ply, const string indent,Ply::DataType dataType) {
+SaverPly::writeAsciiData(FILE * fp, Ply& ply, const std::string indent, Ply::DataType dataType) {
 
   bool success = false;
 
@@ -701,7 +695,7 @@ SaverPly::writeAsciiData
     void* propertyValue;
     int iElement,iList0,iList1,iList,nList,iProperty;
     int iRecord,nElements,nProperties,nRecords,k0,k1;
-    string name,propertyName;
+    std::string name,propertyName;
 
     nElements = ply.getNumberOfElements();
     if(_ostrm!=nullptr) {
@@ -793,8 +787,7 @@ SaverPly::writeAsciiData
 
 //////////////////////////////////////////////////////////////////////
 // static
-bool SaverPly::save
-(const char* filename, Ply & ply, const string indent, Ply::DataType dataType) {
+bool SaverPly::save(const char* filename, Ply & ply, const std::string indent, Ply::DataType dataType) {
 
   bool success = false;
 
@@ -851,8 +844,7 @@ bool SaverPly::save
 
 //////////////////////////////////////////////////////////////////////
 // static
-bool SaverPly::writeHeader
-(FILE *fp, IndexedFaceSet& ifs, const string indent, Ply::DataType dataType) { 
+bool SaverPly::writeHeader(FILE *fp, IndexedFaceSet& ifs, const std::string indent, Ply::DataType dataType) {
 
   bool success = false;
 
@@ -873,7 +865,7 @@ bool SaverPly::writeHeader
        ifs.hasTexCoordPerCorner())
       throw std::runtime_error("ifs properties per corner not supported yet");
 
-    string line = "ply";
+    std::string line = "ply";
     if(_ostrm!=nullptr) {
       *_ostrm << indent << "  " << line << endl;
     }
@@ -991,9 +983,7 @@ bool SaverPly::writeHeader
 
 //////////////////////////////////////////////////////////////////////
 // static
-bool
-SaverPly::writeBinaryData
-(FILE * fp, IndexedFaceSet& ifs, const string indent, Ply::DataType dataType) {
+bool SaverPly::writeBinaryData(FILE * fp, IndexedFaceSet& ifs, const std::string indent, Ply::DataType dataType) {
 
   if(_ostrm!=nullptr) {
     *_ostrm << indent << "SaverPly::writeBinaryData(IndexedFaceSet &) {" << endl;
@@ -1015,20 +1005,20 @@ SaverPly::writeBinaryData
 
   int i,i0,i1,iF,nList,iV,iN,iC,j,k0,k1;
 
-  vector<float>& coord         = ifs.getCoord();
-  vector<int>&   coordIndex    = ifs.getCoordIndex();
-  vector<float>& normal        = ifs.getNormal();
-  vector<int>&   normalIndex   = ifs.getNormalIndex();
-  vector<float>& color         = ifs.getColor();
-  vector<int>&   colorIndex    = ifs.getColorIndex();
-  vector<float>& texCoord      = ifs.getTexCoord();
-  // vector<int>&   texCoordIndex = ifs.getTexCoordIndex();
+  std::vector<float>& coord         = ifs.getCoord();
+  std::vector<int>&   coordIndex    = ifs.getCoordIndex();
+  std::vector<float>& normal        = ifs.getNormal();
+  std::vector<int>&   normalIndex   = ifs.getNormalIndex();
+  std::vector<float>& color         = ifs.getColor();
+  std::vector<int>&   colorIndex    = ifs.getColorIndex();
+  std::vector<float>& texCoord      = ifs.getTexCoord();
+  // std::vector<int>&   texCoordIndex = ifs.getTexCoordIndex();
 
   int nVertices = ifs.getNumberOfVertices();
   int nFaces    = ifs.getNumberOfFaces();
 
   Endian::SingleValueBuffer svb;
-
+
   if(_ostrm!=nullptr) {
     *_ostrm << indent << "  name = vertex" << endl;
     *_ostrm << indent << "    ";
@@ -1145,9 +1135,7 @@ SaverPly::writeBinaryData
 
 //////////////////////////////////////////////////////////////////////
 // static
-bool
-SaverPly::writeAsciiData
-(FILE * fp, IndexedFaceSet& ifs, const string indent, Ply::DataType dataType) {
+bool SaverPly::writeAsciiData(FILE * fp, IndexedFaceSet& ifs, const std::string indent, Ply::DataType dataType) {
 
   if(_ostrm!=nullptr) {
     *_ostrm << indent << "SaverPly::writeAsciiData(IndexedFaceSet &) {" << endl;
@@ -1169,14 +1157,14 @@ SaverPly::writeAsciiData
   int i,i0,i1,iF,iV,iN,iC,j,k0,k1;
   uint nList;
 
-  vector<float>& coord         = ifs.getCoord();
-  vector<int>&   coordIndex    = ifs.getCoordIndex();
-  vector<float>& normal        = ifs.getNormal();
-  vector<int>&   normalIndex   = ifs.getNormalIndex();
-  vector<float>& color         = ifs.getColor();
-  vector<int>&   colorIndex    = ifs.getColorIndex();
-  vector<float>& texCoord      = ifs.getTexCoord();
-  // vector<int>&   texCoordIndex = ifs.getTexCoordIndex();
+  std::vector<float>& coord         = ifs.getCoord();
+  std::vector<int>&   coordIndex    = ifs.getCoordIndex();
+  std::vector<float>& normal        = ifs.getNormal();
+  std::vector<int>&   normalIndex   = ifs.getNormalIndex();
+  std::vector<float>& color         = ifs.getColor();
+  std::vector<int>&   colorIndex    = ifs.getColorIndex();
+  std::vector<float>& texCoord      = ifs.getTexCoord();
+  // std::vector<int>&   texCoordIndex = ifs.getTexCoordIndex();
 
   int nVertices = ifs.getNumberOfVertices();
   int nFaces    = ifs.getNumberOfFaces();
@@ -1273,10 +1261,7 @@ SaverPly::writeAsciiData
 
 //////////////////////////////////////////////////////////////////////
 // static
-bool
-SaverPly::save
-(const char* filename, IndexedFaceSet & ifs, const string indent,
- Ply::DataType dataType) {
+bool SaverPly::save(const char* filename, IndexedFaceSet & ifs, const std::string indent, Ply::DataType dataType) {
 
   bool success = false;
 
@@ -1333,10 +1318,9 @@ SaverPly::save
 
 //////////////////////////////////////////////////////////////////////
 // virtual
-bool
-SaverPly::save(const char* filename, SceneGraph& wrl) const {
+bool SaverPly::save(const char* filename, SceneGraph& sceneGraph) const {
 
-  const string indent = _indent;
+  const std::string indent = _indent;
   
   bool success = false;
 
@@ -1347,10 +1331,10 @@ SaverPly::save(const char* filename, SceneGraph& wrl) const {
   try {
     if(filename==nullptr)  throw std::runtime_error("filename==nullptr");
 
-    if(wrl.getNumberOfChildren()!=1)
+    if(sceneGraph.getNumberOfChildren()!=1)
       throw std::runtime_error("wrl.getNumberOfChildren()!=1");
 
-    Node* node = wrl[0];
+    Node* node = sceneGraph[0];
     Shape* shape = dynamic_cast<Shape*>(node);
     if(shape==nullptr) throw std::runtime_error("shape==nullptr");
     node = shape->getAppearance();

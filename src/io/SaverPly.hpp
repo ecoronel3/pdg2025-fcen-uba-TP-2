@@ -54,50 +54,37 @@ class SaverPly : public Saver {
 public:
 
   SaverPly();
-  virtual ~SaverPly() {}
+
+  ~SaverPly() override = default;
 
   virtual const char* ext() const;
 
-  virtual bool
-  save(const char* filename, SceneGraph& wrl) const;
+  bool save(const char* filename, SceneGraph& sceneGraph) const override;
+  static bool save(const char* filename, Ply & ply, std::string indent="", Ply::DataType dataType=Ply::DataType::ASCII);
+  static bool save(const char* filename, IndexedFaceSet& ifs, std::string indent="", Ply::DataType dataType=Ply::DataType::ASCII);
 
-  static  bool
-  save(const char* filename, Ply & ply, const string indent="",
-       Ply::DataType dataType=Ply::DataType::ASCII);
-  static  bool
-  save(const char* filename, IndexedFaceSet & ifs, const string indent="",
-       Ply::DataType dataType=Ply::DataType::ASCII);
+         void setDataType(Ply::DataType dataType);
+  static void setDefaultDataType(Ply::DataType dataType);
 
-         void setDataType(const Ply::DataType dataType);
-  static void setDefaultDataType(const Ply::DataType dataType);
+  static void setSkipAlpha(bool value);
 
-  static void setSkipAlpha(const bool value);
+  static void setOstream(std::ostream* ostrm);
+  static void setIndent(const std::string& s="");
 
-  static void setOstream(ostream* ostrm);
-  static void setIndent(const string s="");
-
-  private:
+private:
 
   static Ply::DataType systemEndian();
-  static bool          sameAsSystemEndian(Ply::DataType fileEndian);
+  static bool sameAsSystemEndian(Ply::DataType fileEndian);
 
-  static bool writeBinaryValue
-  (FILE * fp, const Ply::Element::Property::Type listType,
-   const bool swapBytes, int nList);
+  static bool writeBinaryValue(FILE* fp, Ply::Element::Property::Type listType, bool swapBytes, int nList);
 
-  static bool writeBinaryValue
-  (FILE * fp, const Ply::Element::Property::Type propertyType,
-   const bool swapBytes, void* value, int i);
+  static bool writeBinaryValue(FILE* fp, Ply::Element::Property::Type propertyType, bool swapBytes, void* value, int i);
   
-  static bool writeBinaryColorValue
-  (FILE * fp, const bool swapBytes, void* value, int i);
+  static bool writeBinaryColorValue(FILE* fp, bool swapBytes, void* value, int i);
 
-  static bool writeAsciiValue
-  (FILE * fp, const Ply::Element::Property::Type propertyType,
-   void* value, int i);
+  static bool writeAsciiValue(FILE* fp, Ply::Element::Property::Type propertyType, void* value, int i);
   
-  static bool writeAsciiColorValue
-  (FILE * fp, void* value, int i);
+  static bool writeAsciiColorValue(FILE* fp, void* value, int i);
   
   static bool
   writeHeader(FILE * fp, Ply& ply, const string indent="",

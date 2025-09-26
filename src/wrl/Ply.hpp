@@ -76,7 +76,7 @@ public:
   //   face:(red,green.blue) to color    + colorPerVertex=false
   // }
   // - per corner bindings not supported
-
+
   class Element {
 
   public:
@@ -124,7 +124,7 @@ public:
       Element&        _element;
 
     };
-
+
     Element(const string& name, const int nRecords, Ply& ply);
     ~Element();
 
@@ -156,7 +156,7 @@ public:
     Ply&              _ply;
 
   };
-
+
   Ply();
   ~Ply();
 
@@ -204,7 +204,7 @@ public:
   vector<float>*        getTexCoord()        { return        _texCoord; }
 
   void                  logInfo(ostream & ostr, const string indent="");
-
+
 private:
 
   friend class LoaderPly;

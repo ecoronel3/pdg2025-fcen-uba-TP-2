@@ -56,10 +56,10 @@ public:
   LoaderPly() = default;
   ~LoaderPly() override = default;
 
-  bool load(const char* filename, SceneGraph & wrl) override;
+  bool load(const char* filename, SceneGraph & sceneGraph) override;
   const char* ext() const override { return _ext; }
 
-  static bool load(const char* filename, Ply & ply, const string indent="");
+  static bool load(const char* filename, Ply & ply, std::string indent="");
 
 private:
 
@@ -70,8 +70,8 @@ private:
   
   static void addAsciiValue(const string& token, Ply::Element::Property::Type propertyType, void* value);
   
-  static size_t readHeader(FILE* fp, Ply& ply, const string indent="");
-  static size_t readBinaryData(FILE* fp, Ply& ply, const string indent="");
-  static size_t readAsciiData(FILE* fp, Ply& ply, const string indent="");
+  static size_t readHeader(FILE* fp, Ply& ply, std::string indent="");
+  static size_t readBinaryData(FILE* fp, Ply& ply, std::string indent="");
+  static size_t readAsciiData(FILE* fp, Ply& ply, std::string indent="");
 
 };

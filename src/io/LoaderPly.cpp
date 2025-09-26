@@ -44,27 +44,20 @@
 
 #include <iostream>
 
-using namespace std;
-
-
 #include "TokenizerFile.hpp"
 #include "TokenizerString.hpp"
-
-#include <wrl/Shape.hpp>
-#include <wrl/Appearance.hpp>
-#include <wrl/Material.hpp>
-#include <wrl/ImageTexture.hpp>
-#include <wrl/IndexedFaceSetPly.hpp>
+#include "wrl/Appearance.hpp"
+#include "wrl/ImageTexture.hpp"
+#include "wrl/IndexedFaceSetPly.hpp"
+#include "wrl/Material.hpp"
+#include "wrl/Shape.hpp"
 
 const char* LoaderPly::_ext = "ply";
 
 //////////////////////////////////////////////////////////////////////
 // static
 Ply::DataType LoaderPly::systemEndian() {
-  return
-    (Endian::isLittleEndianSystem())?
-    Ply::DataType::BINARY_LITTLE_ENDIAN:
-    Ply::DataType::BINARY_BIG_ENDIAN;
+  return Endian::isLittleEndianSystem() ? Ply::DataType::BINARY_LITTLE_ENDIAN :  Ply::DataType::BINARY_BIG_ENDIAN;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -75,17 +68,16 @@ bool LoaderPly::sameAsSystemEndian(Ply::DataType fileEndian) {
 
 //////////////////////////////////////////////////////////////////////
 // static
-void LoaderPly::addBinaryValue
-(Endian::SingleValueBuffer& buff,
- const Ply::Element::Property::Type propertyType,
- const bool swapBytes,
- void* value) {
+void LoaderPly::addBinaryValue(Endian::SingleValueBuffer& buff,
+  const Ply::Element::Property::Type propertyType,
+  const bool swapBytes,
+  void* value) {
 
   switch(propertyType) {
   case Ply::Element::Property::CHAR:
   case Ply::Element::Property::INT8:
     {
-      vector<char>* valueChar= static_cast<vector<char>*>(value);
+      std::vector<char>* valueChar= static_cast<std::vector<char>*>(value);
       char v = buff.c[0];
       valueChar->push_back(v);
     }
@@ -93,7 +85,7 @@ void LoaderPly::addBinaryValue
   case Ply::Element::Property::UCHAR:
   case Ply::Element::Property::UINT8:
     {
-      vector<uchar>* valueUChar= static_cast<vector<uchar>*>(value);
+      std::vector<uchar>* valueUChar= static_cast<std::vector<uchar>*>(value);
       uchar v = buff.uc[0];
       valueUChar->push_back(v);
     }
@@ -101,7 +93,7 @@ void LoaderPly::addBinaryValue
   case Ply::Element::Property::SHORT:
   case Ply::Element::Property::INT16:
     {
-      vector<short>* valueShort= static_cast<vector<short>*>(value);
+      std::vector<short>* valueShort= static_cast<std::vector<short>*>(value);
       if(swapBytes) Endian::swapShort(buff);
       short v = buff.s[0];
       valueShort->push_back(v);
@@ -110,7 +102,7 @@ void LoaderPly::addBinaryValue
   case Ply::Element::Property::USHORT:
   case Ply::Element::Property::UINT16:
     {
-      vector<ushort>* valueUShort= static_cast<vector<ushort>*>(value);
+      std::vector<ushort>* valueUShort= static_cast<std::vector<ushort>*>(value);
       if(swapBytes) Endian::swapUShort(buff);
       ushort v = buff.us[0];
       valueUShort->push_back(v);
@@ -119,7 +111,7 @@ void LoaderPly::addBinaryValue
   case Ply::Element::Property::INT:
   case Ply::Element::Property::INT32:
     {
-      vector<int>* valueInt= static_cast<vector<int>*>(value);
+      std::vector<int>* valueInt= static_cast<std::vector<int>*>(value);
       if(swapBytes) Endian::swapInt(buff);
       int v = buff.i[0];
       valueInt->push_back(v);
@@ -128,7 +120,7 @@ void LoaderPly::addBinaryValue
   case Ply::Element::Property::UINT:
   case Ply::Element::Property::UINT32:
     {
-      vector<uint>* valueUInt= static_cast<vector<uint>*>(value);
+      std::vector<uint>* valueUInt= static_cast<std::vector<uint>*>(value);
       if(swapBytes) Endian::swapUInt(buff);
       uint v = buff.ui[0];
       valueUInt->push_back(v);
@@ -139,7 +131,7 @@ void LoaderPly::addBinaryValue
   case Ply::Element::Property::FLOAT32_2:
   case Ply::Element::Property::FLOAT32_3:
     {
-      vector<float>* valueFloat = static_cast<vector<float>*>(value);
+      std::vector<float>* valueFloat = static_cast<std::vector<float>*>(value);
       if(swapBytes) Endian::swapFloat(buff);
       float v = buff.f[0];
       valueFloat->push_back(v);
@@ -148,7 +140,7 @@ void LoaderPly::addBinaryValue
   case Ply::Element::Property::DOUBLE:
   case Ply::Element::Property::FLOAT64:
     {
-      vector<double>* valueDouble = static_cast<vector<double>*>(value);
+      std::vector<double>* valueDouble = static_cast<std::vector<double>*>(value);
       if(swapBytes) Endian::swapDouble(buff);
       double v = buff.d[0];
       valueDouble->push_back(v);
@@ -163,16 +155,15 @@ void LoaderPly::addBinaryValue
 
 //////////////////////////////////////////////////////////////////////
 // static
-void LoaderPly::addAsciiValue
-(const string& token,
- const Ply::Element::Property::Type propertyType,
- void* value) {
+void LoaderPly::addAsciiValue(const string& token,
+  const Ply::Element::Property::Type propertyType,
+  void* value) {
 
   switch(propertyType) {
   case Ply::Element::Property::CHAR:
   case Ply::Element::Property::INT8:
     {
-      vector<char>* valueChar= static_cast<vector<char>*>(value);
+      std::vector<char>* valueChar= static_cast<std::vector<char>*>(value);
       char v = static_cast<char>(atoi(token.c_str()));
       valueChar->push_back(v);
     }
@@ -180,7 +171,7 @@ void LoaderPly::addAsciiValue
   case Ply::Element::Property::UCHAR:
   case Ply::Element::Property::UINT8:
     {
-      vector<uchar>* valueUChar= static_cast<vector<uchar>*>(value);
+      std::vector<uchar>* valueUChar= static_cast<std::vector<uchar>*>(value);
       uchar v = static_cast<uchar>(atoi(token.c_str()));
       valueUChar->push_back(v);
     }
@@ -188,7 +179,7 @@ void LoaderPly::addAsciiValue
   case Ply::Element::Property::SHORT:
   case Ply::Element::Property::INT16:
     {
-      vector<short>* valueShort= static_cast<vector<short>*>(value);
+      std::vector<short>* valueShort= static_cast<std::vector<short>*>(value);
       short v = static_cast<short>(atoi(token.c_str()));
       valueShort->push_back(v);
     }
@@ -196,7 +187,7 @@ void LoaderPly::addAsciiValue
   case Ply::Element::Property::USHORT:
   case Ply::Element::Property::UINT16:
     {
-      vector<ushort>* valueUShort= static_cast<vector<ushort>*>(value);
+      std::vector<ushort>* valueUShort= static_cast<std::vector<ushort>*>(value);
       ushort v = static_cast<ushort>(atoi(token.c_str()));
       valueUShort->push_back(v);
     }
@@ -204,7 +195,7 @@ void LoaderPly::addAsciiValue
   case Ply::Element::Property::INT:
   case Ply::Element::Property::INT32:
     {
-      vector<int>* valueInt= static_cast<vector<int>*>(value);
+      std::vector<int>* valueInt= static_cast<std::vector<int>*>(value);
       int v = static_cast<int>(atoi(token.c_str()));
       valueInt->push_back(v);
     }
@@ -212,7 +203,7 @@ void LoaderPly::addAsciiValue
   case Ply::Element::Property::UINT:
   case Ply::Element::Property::UINT32:
     {
-      vector<uint>* valueUInt= static_cast<vector<uint>*>(value);
+      std::vector<uint>* valueUInt= static_cast<std::vector<uint>*>(value);
       uint v = static_cast<uint>(atol(token.c_str()));
       valueUInt->push_back(v);
     }
@@ -222,7 +213,7 @@ void LoaderPly::addAsciiValue
   case Ply::Element::Property::FLOAT32_2:
   case Ply::Element::Property::FLOAT32_3:
     {
-      vector<float>* valueFloat = static_cast<vector<float>*>(value);
+      std::vector<float>* valueFloat = static_cast<std::vector<float>*>(value);
       float v = static_cast<float>(atof(token.c_str()));
       valueFloat->push_back(v);
     }
@@ -230,7 +221,7 @@ void LoaderPly::addAsciiValue
   case Ply::Element::Property::DOUBLE:
   case Ply::Element::Property::FLOAT64:
     {
-      vector<double>* valueDouble = static_cast<vector<double>*>(value);
+      std::vector<double>* valueDouble = static_cast<std::vector<double>*>(value);
       double v = static_cast<double>(atof(token.c_str()));
       valueDouble->push_back(v);
     }
@@ -241,7 +232,7 @@ void LoaderPly::addAsciiValue
     }
   }
 }
-
+
 //////////////////////////////////////////////////////////////////////
 // returns number of bytes read
 size_t LoaderPly::readHeader(FILE* fp, Ply& ply, const string indent) {
@@ -426,7 +417,7 @@ size_t LoaderPly::readHeader(FILE* fp, Ply& ply, const string indent) {
 
   return nBytes;
 }
-
+
 //////////////////////////////////////////////////////////////////////
 // static
 size_t LoaderPly::readBinaryData(FILE* fp, Ply& ply, const string indent) {
@@ -466,7 +457,7 @@ size_t LoaderPly::readBinaryData(FILE* fp, Ply& ply, const string indent) {
     // APP->log(QString("%1  nElements = %2").arg(indent.c_str()).arg(nElements));
 
     bool wrlMode = ply.getWrlMode();
-
+
     for(iElement=0;iElement<nElements;iElement++) {
       element = ply.getElement(iElement);
       name    = element->getName();
@@ -506,7 +497,7 @@ size_t LoaderPly::readBinaryData(FILE* fp, Ply& ply, const string indent) {
       // APP->log(QString("%1      nRecords = %2")
       //          .arg(indent.c_str())
       //          .arg(nRecords));
-
+
       k0 = 0;
       for(iRecord=0;iRecord<nRecords;iRecord++) {
         nBytesRecord = 0;
@@ -569,7 +560,7 @@ size_t LoaderPly::readBinaryData(FILE* fp, Ply& ply, const string indent) {
               property->pushBackList(nList);
 
             // read nList values, each of length nBytesListValue
-
+
             for(i=0;i<nList;i++) {
               nBytesRead =
                 static_cast<int>
@@ -656,10 +647,10 @@ size_t LoaderPly::readBinaryData(FILE* fp, Ply& ply, const string indent) {
 
   return nBytesData;
 }
-
+
 //////////////////////////////////////////////////////////////////////
 // static
-size_t LoaderPly::readAsciiData(FILE* fp, Ply& ply, const string indent) {
+size_t LoaderPly::readAsciiData(FILE* fp, Ply& ply, const std::string indent) {
 
   (void)indent;
 
@@ -727,7 +718,7 @@ size_t LoaderPly::readAsciiData(FILE* fp, Ply& ply, const string indent) {
               if(stkn.get()==false) {
                 char s[128];
                 snprintf(s,128,"end of line in property record %d",iRecord);
-                throw std::runtime_error(string(s));
+                throw std::runtime_error(s);
               }
 
               nList = atoi(stkn.c_str());
@@ -792,7 +783,7 @@ size_t LoaderPly::readAsciiData(FILE* fp, Ply& ply, const string indent) {
 
 //////////////////////////////////////////////////////////////////////
 // static
-bool LoaderPly::load(const char* filename, Ply & ply, const string indent) {
+bool LoaderPly::load(const char* filename, Ply & ply, const std::string indent) {
 
   bool success = false;
 
@@ -870,11 +861,9 @@ bool LoaderPly::load(const char* filename, Ply & ply, const string indent) {
 }
 
 //////////////////////////////////////////////////////////////////////
-bool LoaderPly::load
-(const char* filename, SceneGraph& wrl) {
-  (void) wrl;
+bool LoaderPly::load(const char* filename, SceneGraph& sceneGraph) {
 
-  const string indent = "";
+  const std::string indent = "";
 
   bool success = false;
 
@@ -911,13 +900,14 @@ bool LoaderPly::load
     IndexedFaceSetPly* ifsPly = new IndexedFaceSetPly(ply,"  ");
     s->setGeometry(ifsPly);
 
-    wrl.addChild(s);
+    sceneGraph.addChild(s);
 
     success = true;
 
   } catch(const std::exception& e) {
 
-    if(ply) delete ply;
+    if (ply)
+      delete ply;
     // APP->log(QString("  %1").arg(e->what()));
   }
 

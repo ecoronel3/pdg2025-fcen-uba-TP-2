@@ -34,11 +34,11 @@
 
 #include "dgpPrt.hpp"
 
+#include <format>
+
 const char* tv(bool value) { return (value)?"true":"false"; }
 
-void printIndexedFaceSetInfo
-(ostream& ostr, const string& shapeName,
- const int& iIfs, IndexedFaceSet& ifs, const string& indent) {
+void printIndexedFaceSetInfo(std::ostream& ostr, const std::string& shapeName, const int& iIfs, IndexedFaceSet& ifs, const std::string& indent) {
 
   // print some information about ifs using this format
   //
@@ -52,9 +52,15 @@ void printIndexedFaceSetInfo
   //    texCoordBinding  = NONE
   //  }
 
-  ostr << indent << "IndexedFaceSet[" << iIfs << "] {" << endl;
+    ostr << indent << "IndexedFaceSet[" << iIfs << "] {" << endl;
 
-  // TODO
+    ostr << std::format("{:>{}} shapeName = {}\n", "", 4, shapeName);
+    ostr << std::format("{:>{}} numberOfVertices = {}\n", "", 4, ifs.getNumberOfVertices());
+    ostr << std::format("{:>{}} numberOfFaces = {}\n", "", 4, ifs.getNumberOfFaces());
+    ostr << std::format("{:>{}} isTriangleMesh = {}\n", "", 4, ifs.isTriangleMesh());
+    ostr << std::format("{:>{}} colorBinding = {}\n", "", 4, IndexedFaceSet::stringBinding(ifs.getColorBinding()));
+    ostr << std::format("{:>{}} normalBinding = {}\n", "", 4, IndexedFaceSet::stringBinding(ifs.getNormalBinding()));
+    ostr << std::format("{:>{}} texCoordBinding = {}\n", "", 4, IndexedFaceSet::stringBinding(ifs.getTexCoordBinding()));
 
-  ostr << indent << "}" << endl;
+    ostr << indent << "}" << endl;
 }

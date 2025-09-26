@@ -31,7 +31,7 @@
 // ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+
 #include <string>
 #include <iostream>
 
@@ -90,7 +90,7 @@ void error(const char *msg) {
   cout << "ERROR: dgpTest2b | " << ((msg)?msg:"") << endl;
   exit(0);
 }
-
+
 //////////////////////////////////////////////////////////////////////
 int main(int argc, char **argv) {
 
@@ -175,7 +175,7 @@ int main(int argc, char **argv) {
     SaverPly::setOstream(&cout);
     SaverPly::setIndent("    ");
   }
-
+
   //////////////////////////////////////////////////////////////////////
   // read ScheneGraph
 
@@ -204,21 +204,36 @@ int main(int argc, char **argv) {
     // traverse scene graph looking for IndexedFaceSet nodes
     Node* node;
     SceneGraphTraversal sgt(wrl);
-    for(int iIfs=0;(node=sgt.next())!=(Node*)0;iIfs++) {
-      Shape* shape = dynamic_cast<Shape*>(node);
-      if(shape==(Shape*)0) continue;
-      const string& shapeName = shape->getName();
-      
-      IndexedFaceSet* ifs =
-        dynamic_cast<IndexedFaceSet*>(shape->getGeometry());
-      if(ifs==(IndexedFaceSet*)0) continue;
+    for(int iIfs=0;(node=sgt.next()) != nullptr; iIfs++) {
+      auto* shape = dynamic_cast<Shape*>(node);
+      if(shape == nullptr)
+        continue;
+
+      const std::string& shapeName = shape->getName();
+
+      auto* ifs = dynamic_cast<IndexedFaceSet*>(shape->getGeometry());
+      if(ifs == nullptr)
+        continue;
 
       if(D._debug) {
         cout << "  before processing" << endl;
         printIndexedFaceSetInfo(cout, shapeName, iIfs,*ifs,"    ");
       }
 
-      // TODO ...
+      if (D._removeNormal) {
+        ifs->getNormal().clear();
+        ifs->getNormalIndex().clear();
+      }
+
+      if (D._removeColor) {
+        ifs->getColor().clear();
+        ifs->getColorIndex().clear();
+      }
+
+      if (D._removeTexCoord) {
+        ifs->getTexCoord().clear();
+        ifs->getTexCoordIndex().clear();
+      }
 
       if(D._debug) {
         cout << "  after processing" << endl;
