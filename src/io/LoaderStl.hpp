@@ -34,8 +34,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef _LOADER_STL_HPP_
-#define _LOADER_STL_HPP_
+#pragma once
 
 #include <cstdint>
 
@@ -53,22 +52,15 @@ private:
 
 public:
 
-  LoaderStl()  {};
-  ~LoaderStl() {};
+  LoaderStl()  = default;
+  ~LoaderStl() = default;
 
-  bool  load(const char* filename, SceneGraph& wrl);
-  const char* ext() const { return _ext; }
+  bool load(const char* filename, SceneGraph& sceneGraph) override;
+  const char* ext() const override { return _ext; }
 
 private:
-
-  IndexedFaceSet* _initializeSceneGraph(const char* filename, SceneGraph& wrl);
-
-  bool _loadFacetAscii
-  (TokenizerFile& tkn, Vec3f& n, Vec3f& v1, Vec3f& v2, Vec3f& v3);
-
-  bool _loadFacetBinary
-  (FILE* fp, Vec3f& n, Vec3f& v1, Vec3f& v2, Vec3f& v3, uint16_t* abc);
+  IndexedFaceSet* initializeSceneGraph(const char* filename, SceneGraph& wrl);
+  bool loadFacetAscii(TokenizerFile& tkn, Vec3f& n, Vec3f& v1, Vec3f& v2, Vec3f& v3);
+  bool loadFacetBinary(FILE* fp, Vec3f& n, Vec3f& v1, Vec3f& v2, Vec3f& v3, uint16_t* abc);
 
 };
-
-#endif /* _LOADER_STL_HPP_ */

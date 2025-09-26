@@ -36,18 +36,18 @@
 
 bool AppLoader::load(const char* filename, SceneGraph& wrl) {
   bool success = false;
-  if(filename!=(const char*)0) {
+  if(filename != nullptr) {
     // int n = (int)strlen(filename);
-    string f(filename);
+    std::string f(filename);
     int n = static_cast<int>(f.size());
     int i;
     for(i=n-1;i>=0;i--)
       if(filename[i]=='.')
         break;
     if(i>=0) {
-      string ext(filename+i+1);
+      std::string ext(filename+i+1);
       Loader* loader = _registry[ext];
-      if(loader!=(Loader*)0)
+      if(loader != nullptr)
         success = loader->load(filename,wrl);
     }
   }
@@ -55,9 +55,9 @@ bool AppLoader::load(const char* filename, SceneGraph& wrl) {
 }
 
 void AppLoader::registerLoader(Loader* loader) {
-  if(loader!=(Loader*)0) {
-    string ext(loader->ext()); // constructed from const char*
-    pair<string,Loader*> ext_loader(ext,loader);
+  if(loader != nullptr) {
+    std::string ext(loader->ext()); // constructed from const char*
+    std::pair<std::string, Loader*> ext_loader(ext,loader);
     _registry.insert(ext_loader);
   }
 }

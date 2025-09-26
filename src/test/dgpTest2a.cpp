@@ -31,7 +31,8 @@
 // ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+
+#include <chrono>
 #include <string>
 #include <iostream>
 
@@ -82,7 +83,7 @@ void error(const char *msg) {
   cout << "ERROR: dgpTest2a | " << ((msg)?msg:"") << endl;
   exit(0);
 }
-
+
 //////////////////////////////////////////////////////////////////////
 int main(int argc, char **argv) {
 
@@ -155,7 +156,7 @@ int main(int argc, char **argv) {
     SaverPly::setOstream(&cout);
     SaverPly::setIndent("    ");
   }
-
+
   //////////////////////////////////////////////////////////////////////
   // read ScheneGraph
 
@@ -215,10 +216,15 @@ int main(int argc, char **argv) {
     cout << "  saving outFile {" << endl;
   }
 
+  std::chrono::time_point start = std::chrono::high_resolution_clock::now();
   success = saverFactory.save(D._outFile.c_str(),wrl);
+  std::chrono::time_point end = std::chrono::high_resolution_clock::now();
+
+  auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start);
 
   if(D._debug) {
     cout << "    success        = " << tv(success)          << endl;
+    cout << "    elapsed " << elapsed.count() << " ms" << endl;
     cout << "  }" << endl;
     cout << endl;
   }

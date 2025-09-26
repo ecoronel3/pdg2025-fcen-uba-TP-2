@@ -32,18 +32,15 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef _Loader_hpp_
-#define _Loader_hpp_
+#pragma once
 
 #include <wrl/SceneGraph.hpp>
 
 class Loader {
-
 public:
+  virtual ~Loader() = default;
 
-  virtual bool  load(const char* filename, SceneGraph& wrl) = 0;
+  virtual bool load(const char* filename, SceneGraph& wrl) = 0;
   virtual const char* ext() const = 0;
 
 };
-
-#endif // _Loader_hpp_

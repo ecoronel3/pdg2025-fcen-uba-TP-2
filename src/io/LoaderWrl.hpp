@@ -32,8 +32,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef _LOADER_WRL_HPP_
-#define _LOADER_WRL_HPP_
+#pragma once
 
 #include "Loader.hpp"
 #include "TokenizerFile.hpp"
@@ -53,11 +52,11 @@ private:
 
 public:
 
-  LoaderWrl()  {};
-  ~LoaderWrl() {};
+  LoaderWrl() = default;
+  ~LoaderWrl() override = default;
 
-  bool  load(const char* filename, SceneGraph& wrl);
-  const char* ext() const { return _ext; }
+  bool load(const char* filename, SceneGraph& wrl) override;
+  const char* ext() const override { return _ext; }
 
 private:
 
@@ -75,5 +74,3 @@ private:
   bool loadVecInt(TokenizerFile& tkn,vector<int>& vec);
   bool loadVecString(TokenizerFile& tkn,vector<string>& vec);
 };
-
-#endif /* _LOADER_WRL_HPP_ */

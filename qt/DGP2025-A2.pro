@@ -10,6 +10,7 @@ unix:!macx:CONFIG += USE_UNIX_DAEMONIZE
 
 # CONFIG += c++11 c++14 c++17
 CONFIG += sdk_no_version_check
+CONFIG += c++20
 
 ##########################################################################
 

@@ -38,8 +38,11 @@
 
 #include <cstring>
 #include <cstdint>
+#include <filesystem>
+#include <format>
 #include <stdexcept>
 
+#include "core/Faces.hpp"
 #include "wrl/Shape.hpp"
 // #include "wrl/Appearance.hpp"
 // #include "wrl/Material.hpp"
@@ -56,34 +59,63 @@ void SaverStl::setFileType(const SaverStl::FileType ft) {
 }
   
 //////////////////////////////////////////////////////////////////////
-bool SaverStl::_saveAscii
-(FILE* fp, const char* solidname, IndexedFaceSet& ifs) const {
+bool SaverStl::saveAscii(FILE* fp, const char* solidname, IndexedFaceSet& ifs) const {
 
   int nF = ifs.getNumberOfFaces();
-  vector<float>& coord       = ifs.getCoord();
-  vector<int>&   coordIndex  = ifs.getCoordIndex();
-  vector<float>& normal      = ifs.getNormal();
-  vector<int>&   normalIndex = ifs.getNormalIndex();
+  const std::vector<float>& coord = ifs.getCoord();
+  const std::vector<int>& coordIndex = ifs.getCoordIndex();
+  const std::vector<float>& normal = ifs.getNormal();
+  const std::vector<int>& normalIndex = ifs.getNormalIndex();
+  Faces faces(ifs.getNumberOfCoord(),  ifs.getCoordIndex());
+
   // already checked that ifs.getNormalPerVertex()==false
-  bool           npf_indexed = (static_cast<int>(normalIndex.size())==nF);
+  bool npf_indexed = (static_cast<int>(normalIndex.size())==nF);
 
   fprintf(fp,"solid %s\n",solidname);
-    
-  int iF,iV0,iV1,iV2,iN;
-  float x0,x1,x2,n0,n1,n2;
-  for(iF=0;iF<nF;iF++) { // for each face ...
 
-    // TODO
-    // use fprintf() to print formatted text
+  std::stringstream ss;
+  for (int iF = 0; iF < nF; iF++) {
 
+    const int iN = npf_indexed ? normalIndex[iF] : iF;
+    ss << std::format("facet normal {:.6e} {:.6e} {:.6e}\n", normal[3*iN], normal[3*iN + 1], normal[3*iN + 2]);
+
+    ss << "  outer loop\n";
+    for (int j = 0; j < 3; j++) {
+      const int iV = coordIndex[4 * iF + j];
+      ss << std::format("    vertex {:.6e} {:.6e} {:.6e}\n", coord[3*iV], coord[3*iV+1], coord[3*iV+2]);
+    }
+    ss << "  endloop\n";
+    ss << "endfacet\n";
+
+    constexpr std::size_t threshold = 4 * 1024;
+    if (ss.view().size() > threshold) {
+      std::string buffer = ss.str();
+
+      const size_t written = fwrite(buffer.data(), sizeof(char), buffer.size(), fp);
+      if (written != buffer.size()) {
+        return false;
+      }
+
+      ss.str("");
+    }
+  }
+
+  if (!ss.view().empty()) {
+    std::string buffer = ss.str();
+
+    const size_t written = fwrite(buffer.data(), sizeof(char), buffer.size(), fp);
+    if (written != buffer.size()) {
+      return false;
+    }
+
+    ss.str("");
   }
 
   return true;
 }
 
 //////////////////////////////////////////////////////////////////////
-bool SaverStl::_saveBinary
-(FILE* fp, const char* solidname, IndexedFaceSet& ifs) const {
+bool SaverStl::saveBinary(FILE* fp, const char* solidname, IndexedFaceSet& ifs) const {
 
   int nF = ifs.getNumberOfFaces();
   vector<float>& coord       = ifs.getCoord();
@@ -96,26 +128,23 @@ bool SaverStl::_saveBinary
   size_t written = 0;
 
   // allocate header and initialize to zero
-  char header[80];
-  memset(header,0x00,80);
+  char header[80] = {};
   snprintf(header,80,"BINARY STL %s Exported by DGP2025",solidname);
 
   written = fwrite(header,1,80,fp);
   if(written!=80)
     throw std::runtime_error("unable to write binary STL header");
 
-  uint32_t nTriangles = static_cast<uint32_t>(nF);
+  auto nTriangles = static_cast<uint32_t>(nF);
   written = fwrite((void*)&nTriangles,1,4,fp);
   if(written<4)
     throw std::runtime_error("unable to write number of triangles");
 
   uint16_t abc = 0x0000; // attribute byte count
 
-  int iF,iV0,iV1,iV2,iN;
   float n[3],v[3];
-  for(iF=0;iF<nF;iF++) {
-
-    iN   = (npf_indexed)?normalIndex[iF]:iF;
+  for(int iF = 0;iF<nF;iF++) {
+    const int iN = (npf_indexed) ? normalIndex[iF] : iF;
     n[0] = normal[3*iN  ];
     n[1] = normal[3*iN+1];
     n[2] = normal[3*iN+2];
@@ -123,7 +152,7 @@ bool SaverStl::_saveBinary
     if(written!=12)
       throw std::runtime_error("unable to write normal vector");
 
-    iV0  = coordIndex[4*iF+0];
+    const int iV0 = coordIndex[4 * iF + 0];
     v[0] = coord[3*iV0  ];
     v[1] = coord[3*iV0+1];
     v[2] = coord[3*iV0+2];
@@ -131,7 +160,7 @@ bool SaverStl::_saveBinary
     if(written!=12)
       throw std::runtime_error("unable to write vertex 0");
 
-    iV1  = coordIndex[4*iF+1];
+    const int iV1 = coordIndex[4 * iF + 1];
     v[0] = coord[3*iV1  ];
     v[1] = coord[3*iV1+1];
     v[2] = coord[3*iV1+2];
@@ -139,7 +168,7 @@ bool SaverStl::_saveBinary
     if(written!=12)
       throw std::runtime_error("unable to write vertex 1");
 
-    iV2  = coordIndex[4*iF+2];
+    const int iV2 = coordIndex[4 * iF + 2];
     v[0] = coord[3*iV2  ];
     v[1] = coord[3*iV2+1];
     v[2] = coord[3*iV2+2];
@@ -149,38 +178,40 @@ bool SaverStl::_saveBinary
 
     written = fwrite(&abc,1,2,fp);
     if(written<2)
-      throw std::runtime_error("unable to write atribute byte count");
-
+      throw std::runtime_error("unable to write attribute byte count");
   }
-
   return true;
 }
 
 //////////////////////////////////////////////////////////////////////
 bool SaverStl::save(const char* filename, SceneGraph& wrl) const {
   bool success = false;
-  FILE* fp = (FILE*)0;
+  FILE* fp = nullptr;
   try {
+
     // Check these conditions
-    if(filename==(char*)0)
+    if(filename == nullptr)
       throw std::runtime_error("empty filename");
+
     // 1) the SceneGraph should have a single child
     if(wrl.getNumberOfChildren()!=1)
       throw std::runtime_error("number of SceneGraph children != 1");
+
     // 2) the child should be a Shape node
     Node* child_0 = wrl[0];
-    Shape* shape = dynamic_cast<Shape*>(child_0);
-    if(shape==(Shape*)0)
+    auto* shape = dynamic_cast<Shape*>(child_0);
+    if(shape == nullptr)
       throw std::runtime_error("first SceneGraph child not a Shape node");
+
     // 3) the geometry of the Shape node should be an IndexedFaceSet node
     Node* geometry = shape->getGeometry();
-    IndexedFaceSet* ifs = dynamic_cast<IndexedFaceSet*>(geometry);
-    if(ifs==(IndexedFaceSet*)0)
+    auto* ifs = dynamic_cast<IndexedFaceSet*>(geometry);
+    if(ifs == nullptr)
       throw std::runtime_error("Shape geometry not an IndexedFaceSet");
     // - construct an instance of the Faces class from the IndexedFaceSet
     // int nV = ifs->getNumberOfCoord();
     // vector<float>& coord      = ifs->getCoord();
-    vector<int>&   coordIndex = ifs->getCoordIndex();
+    std::vector<int>& coordIndex = ifs->getCoordIndex();
 
     // 4) the IndexedFaceSet should be a triangle mesh
     // - use the Faces class, or directly the coordIndex array to
@@ -198,7 +229,7 @@ bool SaverStl::save(const char* filename, SceneGraph& wrl) const {
     // }
 
     int i0,i1,nFs;
-    for(i0=i1=0;i0<static_cast<int>(coordIndex.size());i1++) {
+    for(i0=i1=0;i0<static_cast<int>(coordIndex.size());i1++){
       if(coordIndex[i1]>=0) continue;
       nFs = i1-i0; // size of face
       if(nFs!=3)
@@ -209,28 +240,30 @@ bool SaverStl::save(const char* filename, SceneGraph& wrl) const {
     // 5) verify that the IndexedFaceSet has normals per face
     IndexedFaceSet::Binding nb = ifs->getNormalBinding();
     bool npf_non_indexed = (nb==IndexedFaceSet::Binding::PB_PER_FACE);
-    bool npf_indexed     = (nb==IndexedFaceSet::Binding::PB_PER_FACE_INDEXED);
+    bool npf_indexed = (nb==IndexedFaceSet::Binding::PB_PER_FACE_INDEXED);
     if(npf_non_indexed==false && npf_indexed==false)
         throw std::runtime_error("does not have normals per face");
 
     // default solid name
     char solidname[256] = "solidname";
-    string ifs_name = ifs->getName();
+    std::string ifs_name = ifs->getName();
     if(ifs_name.empty()==false) {
       snprintf(solidname,256,"%s",ifs_name.c_str());
     } else {
       // otherwise use filename, but first remove directory and extension
-      // TODO
+      std::filesystem::path filenamePath = filename;
+      ifs_name = filenamePath.stem().string();
+      snprintf(solidname,256,"%s",ifs_name.c_str());
     }
 
     if(_fileType==SaverStl::FileType::ASCII) { ///////////////////////
 
       // if (all the conditions are satisfied) try to open the file
       fp = fopen(filename,"w");
-      if( fp==(FILE*)0)
+      if(fp == nullptr)
         throw std::runtime_error("unable to open ASCII STL outputfile");
 
-      if(_saveAscii(fp,solidname,*ifs)==false)
+      if(saveAscii(fp,solidname,*ifs)==false)
         throw std::runtime_error("unable to save ASCII STL outputfile");
     
       fclose(fp);
@@ -242,7 +275,7 @@ bool SaverStl::save(const char* filename, SceneGraph& wrl) const {
       if( fp==(FILE*)0)
         throw std::runtime_error("unable to open BINARY STL outputfile");
 
-      if(_saveBinary(fp,solidname,*ifs)==false)
+      if(saveBinary(fp,solidname,*ifs)==false)
         throw std::runtime_error("unable to save BINARY STL outputfile");
 
       fclose(fp);

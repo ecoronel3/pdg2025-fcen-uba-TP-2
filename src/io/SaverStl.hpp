@@ -34,15 +34,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef _SAVER_STL_HPP_
-#define _SAVER_STL_HPP_
+#pragma once
 
-#include <cstdio>
 #include "Saver.hpp"
 #include "wrl/IndexedFaceSet.hpp"
 
 class SaverStl : public Saver {
-
 private:
 
   const static char* _ext;
@@ -54,25 +51,21 @@ public:
     BINARY
   };
 
-  SaverStl()  {};
-  ~SaverStl() {};
+  SaverStl() = default;
+  ~SaverStl() override = default;
 
-  bool  save(const char* filename, SceneGraph& wrl) const;
-  const char* ext() const { return _ext; }
+  bool save(const char* filename, SceneGraph& wrl) const override;
+  const char* ext() const override { return _ext; }
 
-  static void setFileType(const FileType ft);
+  static void setFileType(FileType ft);
   
 private:
 
-  static FileType _fileType; // default : ASCII
+  /// default : ASCII
+  static FileType _fileType;
 
 private:
-  
-  bool _saveAscii
-  (FILE* fp, const char* solidname, IndexedFaceSet& ifs) const;
-  bool _saveBinary
-  (FILE* fp, const char* solidname, IndexedFaceSet& ifs) const;
+  bool saveAscii(FILE* fp, const char* solidname, IndexedFaceSet& ifs) const;
+  bool saveBinary(FILE* fp, const char* solidname, IndexedFaceSet& ifs) const;
 
 };
-
-#endif /* _SAVER_STL_HPP_ */

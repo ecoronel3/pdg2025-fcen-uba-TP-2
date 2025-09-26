@@ -39,8 +39,7 @@
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#ifndef _LOADER_PLY_HPP_
-#define _LOADER_PLY_HPP_
+#pragma once
 
 #include "Loader.hpp"
 #include <util/Endian.hpp>
@@ -54,35 +53,25 @@ private:
   const static char* _ext;
 
 public:
+  LoaderPly() = default;
+  ~LoaderPly() override = default;
 
-  LoaderPly()  {};
-  ~LoaderPly() {};
-
-  bool  load(const char* filename, SceneGraph & wrl);
-  const char* ext() const { return _ext; }
+  bool load(const char* filename, SceneGraph & wrl) override;
+  const char* ext() const override { return _ext; }
 
   static bool load(const char* filename, Ply & ply, const string indent="");
 
 private:
 
   static Ply::DataType systemEndian();
-  static bool          sameAsSystemEndian(Ply::DataType fileEndian);
+  static bool sameAsSystemEndian(Ply::DataType fileEndian);
 
-  static void addBinaryValue
-  (Endian::SingleValueBuffer& buff,
-   const Ply::Element::Property::Type propertyType,
-   const bool swapBytes,
-   void* value);
+  static void addBinaryValue(Endian::SingleValueBuffer& buff, Ply::Element::Property::Type propertyType, bool swapBytes, void* value);
   
-  static void addAsciiValue
-  (const string& token,
-   const Ply::Element::Property::Type propertyType,
-   void* value);
+  static void addAsciiValue(const string& token, Ply::Element::Property::Type propertyType, void* value);
   
   static size_t readHeader(FILE* fp, Ply& ply, const string indent="");
   static size_t readBinaryData(FILE* fp, Ply& ply, const string indent="");
   static size_t readAsciiData(FILE* fp, Ply& ply, const string indent="");
 
 };
-
-#endif // _LOADER_PLY_HPP_
