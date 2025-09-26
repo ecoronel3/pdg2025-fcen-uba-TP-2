@@ -213,7 +213,7 @@ int main(int argc, char **argv) {
 
       if(D._debug) {
         cout << "  before removing properties" << endl;
-        printIndexedFaceSetInfo(cout, shapeName, iIfs,*ifs,"    ");
+        printIndexedFaceSetInfo(cout, shapeName, iIfs,*ifs, 1);
       }
       
       ifs->setNormalPerVertex(true);
@@ -227,12 +227,12 @@ int main(int argc, char **argv) {
       
       if(D._debug) {
         cout << "  after removing properties" << endl;
-        printIndexedFaceSetInfo(cout, shapeName, iIfs,*ifs,"    ");
+        printIndexedFaceSetInfo(cout, shapeName, iIfs,*ifs, 1);
       }
 
     } else {
       if(D._debug) {
-        printIndexedFaceSetInfo(cout, shapeName, iIfs,*ifs,"    ");
+        printIndexedFaceSetInfo(cout, shapeName, iIfs,*ifs, 1);
       }
     }
 

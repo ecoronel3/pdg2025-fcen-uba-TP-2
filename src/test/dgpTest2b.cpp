@@ -217,7 +217,7 @@ int main(int argc, char **argv) {
 
       if(D._debug) {
         cout << "  before processing" << endl;
-        printIndexedFaceSetInfo(cout, shapeName, iIfs,*ifs,"    ");
+        printIndexedFaceSetInfo(cout, shapeName, iIfs,*ifs,1);
       }
 
       if (D._removeNormal) {
@@ -237,7 +237,7 @@ int main(int argc, char **argv) {
 
       if(D._debug) {
         cout << "  after processing" << endl;
-        printIndexedFaceSetInfo(cout, shapeName, iIfs,*ifs,"    ");
+        printIndexedFaceSetInfo(cout, shapeName, iIfs,*ifs,1);
       }
 
       if(D._debug) cout << "" << endl;

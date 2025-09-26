@@ -31,7 +31,7 @@
 // ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+
 #ifndef DGP_PRT_HPP
 #define DGP_PRT_HPP
 
@@ -53,7 +53,9 @@ const char* tv(bool value);
 //    texCoordBinding  = NONE
 //  }
 
-void printIndexedFaceSetInfo
-(ostream& ostr, const string& shapeName, const int& iIfs, IndexedFaceSet& ifs, const string& indent="");
+void printIndexedFaceSetInfo(std::ostream& os,
+    const std::string& shapeName,
+    const int& iIfs, IndexedFaceSet& ifs,
+    uint32_t indentLevel = 0);
 
 #endif // DGP_PRT_HPP

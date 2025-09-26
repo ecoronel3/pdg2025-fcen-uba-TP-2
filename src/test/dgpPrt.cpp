@@ -31,14 +31,14 @@
 // ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+
 #include "dgpPrt.hpp"
 
 #include <format>
 
 const char* tv(bool value) { return (value)?"true":"false"; }
 
-void printIndexedFaceSetInfo(std::ostream& ostr, const std::string& shapeName, const int& iIfs, IndexedFaceSet& ifs, const std::string& indent) {
+void printIndexedFaceSetInfo(std::ostream& os, const std::string& shapeName, const int& iIfs, IndexedFaceSet& ifs, uint32_t indentLevel) {
 
   // print some information about ifs using this format
   //
@@ -52,15 +52,17 @@ void printIndexedFaceSetInfo(std::ostream& ostr, const std::string& shapeName, c
   //    texCoordBinding  = NONE
   //  }
 
-    ostr << indent << "IndexedFaceSet[" << iIfs << "] {" << endl;
+    const std::string indent = std::format("{:>{}}", "", 4 * indentLevel);
+    const std::string nextIndent = std::format("{:>{}}", "", 4 * (indentLevel + 1));
 
-    ostr << std::format("{:>{}} shapeName = {}\n", "", 4, shapeName);
-    ostr << std::format("{:>{}} numberOfVertices = {}\n", "", 4, ifs.getNumberOfVertices());
-    ostr << std::format("{:>{}} numberOfFaces = {}\n", "", 4, ifs.getNumberOfFaces());
-    ostr << std::format("{:>{}} isTriangleMesh = {}\n", "", 4, ifs.isTriangleMesh());
-    ostr << std::format("{:>{}} colorBinding = {}\n", "", 4, IndexedFaceSet::stringBinding(ifs.getColorBinding()));
-    ostr << std::format("{:>{}} normalBinding = {}\n", "", 4, IndexedFaceSet::stringBinding(ifs.getNormalBinding()));
-    ostr << std::format("{:>{}} texCoordBinding = {}\n", "", 4, IndexedFaceSet::stringBinding(ifs.getTexCoordBinding()));
+    os << indent << "IndexedFaceSet[" << iIfs << "] {" << endl;
+    os << std::format("{} shapeName = {}\n", nextIndent, shapeName);
+    os << std::format("{} numberOfVertices = {}\n", nextIndent, ifs.getNumberOfVertices());
+    os << std::format("{} numberOfFaces = {}\n", nextIndent, ifs.getNumberOfFaces());
+    os << std::format("{} isTriangleMesh = {}\n", nextIndent, ifs.isTriangleMesh());
+    os << std::format("{} colorBinding = {}\n", nextIndent, IndexedFaceSet::stringBinding(ifs.getColorBinding()));
+    os << std::format("{} normalBinding = {}\n", nextIndent, IndexedFaceSet::stringBinding(ifs.getNormalBinding()));
+    os << std::format("{} texCoordBinding = {}\n", nextIndent, IndexedFaceSet::stringBinding(ifs.getTexCoordBinding()));
 
-    ostr << indent << "}" << endl;
+    os << indent << "}" << endl;
 }

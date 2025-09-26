@@ -199,7 +199,7 @@ int main(int argc, char **argv) {
     IndexedFaceSet* ifs = dynamic_cast<IndexedFaceSet*>(node);
     if(ifs==nullptr) continue;
 
-    printIndexedFaceSetInfo(cout,shapeName,iIfs,*ifs,"    ");
+    printIndexedFaceSetInfo(cout,shapeName,iIfs,*ifs,1);
 
     iIfs++;
   }
