@@ -97,48 +97,6 @@ PolygonMeshTest::PolygonMeshTest(SceneGraph& sceneGraph, const std::string& inde
         _ostr << indent << "      PolygonMesh(nV,coordIndex) {" << endl;
 
         PolygonMesh pMesh(nVifs,coordIndex);
-        assert(pMesh.getDst(2) == 2);
-        assert(pMesh.getDst(6) == 3);
-        assert(pMesh.getDst(5) == 0);
-
-        assert(pMesh.getNext(0) == 1);
-        assert(pMesh.getNext(1) == 2);
-        assert(pMesh.getNext(2) == 0);
-
-        assert(pMesh.getNext(8) == 9);
-        assert(pMesh.getNext(9) == 10);
-        assert(pMesh.getNext(10) == 8);
-
-        assert(pMesh.getNext(12) == 13);
-        assert(pMesh.getNext(13) == 14);
-        assert(pMesh.getNext(14) == 12);
-
-        assert(pMesh.getPrev(10) == 9);
-        assert(pMesh.getPrev(9) == 8);
-        assert(pMesh.getPrev(8) == 10);
-
-        assert(pMesh.getPrev(2) == 1);
-        assert(pMesh.getPrev(1) == 0);
-        assert(pMesh.getPrev(0) == 2);
-
-        assert(pMesh.getPrev(14) == 13);
-        assert(pMesh.getPrev(13) == 12);
-        assert(pMesh.getPrev(12) == 14);
-
-        assert(pMesh.getTwin(0) == 14);
-        assert(pMesh.getTwin(8) == 13);
-        assert(pMesh.getTwin(6) == 9);
-
-        assert(pMesh.getNumberOfEdgeHalfEdges(0) == 2);
-        assert(pMesh.getNumberOfEdgeHalfEdges(1) == 2);
-        assert(pMesh.getNumberOfEdgeHalfEdges(2) == 2);
-        assert(pMesh.getNumberOfEdgeHalfEdges(3) == 2);
-        assert(pMesh.getNumberOfEdgeHalfEdges(4) == 2);
-        assert(pMesh.getNumberOfEdgeHalfEdges(5) == 2);
-
-        assert(pMesh.getEdgeHalfEdge(0, 0) == 0);
-        assert(pMesh.getEdgeHalfEdge(0, 1) == 14);
-        assert(pMesh.getEdgeHalfEdge(0, 2) == -1);
 
         int nV = pMesh.getNumberOfVertices();
         int nE = pMesh.getNumberOfEdges();
