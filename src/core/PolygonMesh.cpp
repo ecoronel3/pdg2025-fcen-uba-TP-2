@@ -133,7 +133,9 @@ PolygonMesh::PolygonMesh(const int nVertices, const std::vector<int>& coordIndex
     // - for edge boundary iE label its two end vertices as boundary
     if (coordIndex[iC] < 0)
       continue;
-    // partition.getSize(iC)
+
+    const int iV = getSrc(iC);
+    _nPartsVertex[iV] += partition.getSize(iC);
   }
 }
 
