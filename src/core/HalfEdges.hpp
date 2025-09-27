@@ -40,14 +40,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
-
-#ifndef _HALF_EDGES_HPP_
-#define _HALF_EDGES_HPP_
+#pragma once
 
 #include <vector>
-#include "Edges.hpp"
 
-using namespace std;
+#include "Edges.hpp"
 
 class HalfEdges : public Edges {
 
@@ -62,72 +59,77 @@ public:
   // int     getVertex1(const int iE)                  const;
 
   // constructor performs most of the work
+  HalfEdges(int nV, const std::vector<int>& coordIndex);
 
-          HalfEdges(const int nV, const vector<int>& coordIndex);
+  /**
+   * returns the number of elements of the coordIndex array
+   *
+   **/
+  int getNumberOfCorners() const;
 
-  // returns the number of elements of the coordIndex array
+  /**
+   * returns the index of the face containing the half edge corresponding to the corner index iC;
+   * if the corner index is out of range, or it corresponds to a face separator, this method returns -1;
+   *
+   * @param iC: corner index
+   */
+  int getFace(int iC) const;
 
-  int     getNumberOfCorners();
+  /**
+   * half-edges are in one-to-one correspondence with the corners of a mesh,
+   * i.e., with the indices of the coordIndex array which do not correspond to face separators;
+   * if the corner index iC is out of the range 0<=iC<coordIndex.size(), or coordIndex[iC]<0, these methods return -1;
+   *
+  **/
+  int getSrc(int iC) const;
+  int getDst(int iC) const;
 
-  // returns the index of the face containing the half edge
-  // corresponding to the corner index iC; if the corner index is out
-  // of range, or it corresponds to a face separator, this method
-  // returns -1;
+  /**
+   * the mesh faces define loops of half edges; these two methods can be used to move back and forth along these loops;
+   *
+  */
+  int getNext(int iC) const;
+  int getPrev(int iC) const;
 
-  int     getFace(const int iC) const;
+  /**
+   * a regular edge of a mesh has exactly two incident half-edges;
+   * if the half-edge associated with the corner iC corresponds to a regular edge of the mesh,
+   * this method returns the other half-edge; otherwise it returns -1
+   *
+   */
+  int getTwin(int iC) const;
 
-  // half-edges are in one-to-one correspondence with the corners of a
-  // mesh, i.e., with the indices of the coordIndex array which do not
-  // correspond to face separators; if the corner index iC is out of
-  // the range 0<=iC<coordIndex.size(), or coordIndex[iC]<0, these
-  // methods return -1;
+  /**
+   * if the edge index iE is in range, this method returns the number of half-edges incident to the given edge;
+   * otherwise it returns 0
+   *
+   */
+  int getNumberOfEdgeHalfEdges(int iE) const;
 
-  int     getSrc(const int iC) const;
-  int     getDst(const int iC) const;
+  /**
+   * if the edge index iE is in range, and 0<=j<getNumberOfEdgeHalfEdges(iE),
+   * this method returns the j-th corner corresponding to a half-edge incident to the given edge
+   *
+   */
 
-  // the mesh faces define loops of half edges; these two methods can
-  // be used to move back and forth along these loops;
+  int getEdgeHalfEdge(int iE, int j) const;
 
-  int     getNext(const int iC) const;
-  int     getPrev(const int iC) const;
-
-  // a regular edge of a mesh has exactly two incident half-edges; if
-  // the half-edge associated with corner iC corresponds to a regular
-  // edge of the mesh, this methods returns the other half edge;
-  // otherwie it returns -1
-
-  int     getTwin(const int iC) const;
-
-  // if the edge index iE is in range, this method returns the number
-  // of half edges incident to the given edge; otherwise it returns 0
-                                   
-  int     getNumberOfEdgeHalfEdges(const int iE) const;
-
-  // if the edge index iE is in range, and
-  // 0<=j<getNumberOfEdgeHalfEdges(iE), this method returns the j-th
-  // corner corresponding to a half edge incident to the given edge
-
-  int     getEdgeHalfEdge(const int iE, const int j) const;
-
 protected:
 
   // reference to the coordIndex passed as argument
-  const vector<int>& _coordIndex;
+  const std::vector<int>& _coordIndex;
 
   // - consider these private variables are just a hint
   // - feel free to use different private variables
 
   // array of twin corners
-        vector<int>  _twin;
+    std::vector<int> _twin;
 
   // mapping from corners to faces
-        vector<int> _face;
+    std::vector<int> _face;
 
-  // the half-edge to edge incidence relations is represented as an
-  // arrray of arrays
-        vector<int> _firstCornerEdge;
-        vector<int> _cornerEdge;
+  // the half-edge to edge incidence relation is represented as an array of arrays
+    std::vector<int> _firstCornerEdge;
+    std::vector<int> _cornerEdge;
 
 };
-
-#endif /* _HALF_EDGES_HPP_ */

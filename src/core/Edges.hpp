@@ -38,13 +38,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
-
-#ifndef _EDGES_HPP_
-#define _EDGES_HPP_
+
+#pragma once
 
 #include <vector>
-
-using namespace std;
 
 class Edges {
 
@@ -59,27 +56,27 @@ public:
 
   // create a graph with nV vertices and no edges;
   // the range of valid vertex indices is 0<=iV<nV
-          Edges(const int nV);
+  explicit Edges(int nV);
 
   // returns the number of vertices
-  int     getNumberOfVertices()                     const;
+  int getNumberOfVertices() const;
 
   // returns the number of edges nE at the time of the call;
   // at any particular time, the range of valid vertex indices is
   // 0<=iE<getNumberOfEdges()
-  int     getNumberOfEdges()                        const;
+  int getNumberOfEdges() const;
 
   // returns -1 if iV0==iV1 or one of the vertex indices is out of
   // range; also returns -1 if the edge (iV0,iV1) has not been
   // inserted into the Edges yet; otherwise it returns the edge index iE
   // assigned to the edge when inserted
-  int     getEdge(const int iV0, const int iV1)     const;
+  int getEdge(int iV0, int iV1) const;
 
   // an edge is stored internally as a pair of vertex indices
   // (iV0,iV1) so that iV0<iV1; getVertex0(iE) returns iV0, and
   // getVertex1(iE) returns iV1.
-  int     getVertex0(const int iE)                  const;
-  int     getVertex1(const int iE)                  const;
+  int getVertex0(int iE) const;
+  int getVertex1(int iE) const;
 
   // Edges Traversal sample code
   //
@@ -90,19 +87,19 @@ public:
   //   iV1 = edges.getVertex0(iE);
   //   // ...
   // }
-
+
 protected:
 
   // remove all the edges, and change the number of vertices
-  void    _reset(const int nV);
+  void reset(int nV);
 
   // - if iV0==iV1 or one of the two vertex indices is out of range,
   //   _insertEdge() returns -1 ;
   // - if iE=getEdge(iV0,iV1) is a valid edge index,
   //   _insertEdge() returns iE;
   // - otherwise a new edge index iE is assigned to the edge, and
-  //   _isertEdge() returns the new index iE
-  int     _insertEdge(const int iV0, const int iV1);
+  //   insertEdge() returns the new index iE
+  int insertEdge(int iV0, int iV1);
 
 private:
 
@@ -111,13 +108,11 @@ private:
   // _first[iV0] is the index into _edge array corresponding to first
   // edge (iV0,iV1) so that iV0<iV1; _first[iV0]==-1 if the list is
   // empty
-  vector<int> _first;
+  std::vector<int> _first;
   // stores triples (iV0,iV1,next), where the next value is an index
   // into _edge array corresponding to next edge (iV0,iV1) so that
   // iV0<iV1; next==-1 indicates the end of the list; the order of the
   // triples in each list is not specified
-  vector<int> _edge;
+  std::vector<int> _edge;
 
 };
-
-#endif /* _EDGES_HPP_ */

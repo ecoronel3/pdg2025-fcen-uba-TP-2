@@ -32,12 +32,13 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef DGP_PRT_HPP
-#define DGP_PRT_HPP
+#pragma once
 
+#include <cstdint>
 #include <string>
 #include <iostream>
-#include <wrl/IndexedFaceSet.hpp>
+
+#include "wrl/IndexedFaceSet.hpp"
 
 const char* tv(bool value);
 
@@ -57,5 +58,3 @@ void printIndexedFaceSetInfo(std::ostream& os,
     const std::string& shapeName,
     const int& iIfs, IndexedFaceSet& ifs,
     uint32_t indentLevel = 0);
-
-#endif // DGP_PRT_HPP

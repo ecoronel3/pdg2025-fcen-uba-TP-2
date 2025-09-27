@@ -38,8 +38,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
-
-#include <math.h>
+
 #include "Edges.hpp"
 
 // public methods
@@ -47,7 +46,7 @@
 Edges::Edges(const int nV):
   _first(),
   _edge() {
-  _reset(nV);
+  reset(nV);
 }
 
 int Edges::getNumberOfVertices() const {
@@ -88,17 +87,17 @@ int Edges::getVertex1(const int iE) const {
   if(iE<0 || iE>=nE) return -1;
   return _edge[3*iE+1];
 }
-
+
 // protected methods
 
-void Edges::_reset(const int nV) {
+void Edges::reset(const int nV) {
   _edge.clear();
   _first.clear();
   for(int iV=0;iV<nV;iV++)
     _first.push_back(-1);
 }
 
-int Edges::_insertEdge(int iV0, int iV1) {
+int Edges::insertEdge(int iV0, int iV1) {
   // edges with the same ends are not allowed
   if(iV0==iV1) return -1;
   // check that vertices are not out of range

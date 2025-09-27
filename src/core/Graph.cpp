@@ -38,17 +38,16 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
-
-#include <math.h>
+
 #include "Graph.hpp"
 
 Graph::Graph(const int nV):Edges(nV) {
 }
 
 void Graph::reset(const int nV) {
-  _reset(nV);
+  Edges::reset(nV);
 }
 
 int Graph::insertEdge(int iV0, int iV1) {
-  return _insertEdge(iV0,iV1);
+  return Edges::insertEdge(iV0,iV1);
 }

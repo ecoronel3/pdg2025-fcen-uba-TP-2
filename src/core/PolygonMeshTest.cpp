@@ -38,40 +38,41 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
-
-#include <iostream>
+
 #include "PolygonMeshTest.hpp"
+
+#include <cassert>
+#include <iostream>
 #include <wrl/Shape.hpp>
 #include <wrl/Appearance.hpp>
 #include <wrl/Material.hpp>
 #include <wrl/IndexedFaceSet.hpp>
 #include <wrl/SceneGraphTraversal.hpp>
 
-PolygonMeshTest::PolygonMeshTest
-(SceneGraph& wrl, const string& indent, ostream& ostr):_ostr(ostr) {
+PolygonMeshTest::PolygonMeshTest(SceneGraph& sceneGraph, const std::string& indent, std::ostream& ostr):_ostr(ostr) {
   _ostr << indent << "PolygonMeshTest {" << endl;
 
   int nIndexedFaceSet = 0;
 
-  SceneGraphTraversal traversal(wrl);
-  Node* node = (Node*)0;
-  while((node=traversal.next())!=(Node*)0) {
+  SceneGraphTraversal traversal(sceneGraph);
+  Node* node = nullptr;
+  while((node=traversal.next())!=nullptr) {
     if(node->isShape()) {
       _ostr << indent << "  Shape {" << endl;
-      Shape* shape = (Shape*)node;
+      auto shape = dynamic_cast<Shape*>(node);
 
       _ostr << indent << "    name = \"" << shape->getName() << "\"" << endl;    
 
       node = shape->getAppearance();
-      if(node==(Node*)0) {
+      if(node==nullptr) {
         _ostr << indent << "    appearance = NULL" << endl;    
       } else if(node->isAppearance()) {
-        Appearance* appearance = (Appearance*)node;
+        auto appearance = dynamic_cast<Appearance*>(node);
         node = appearance->getMaterial();
-        if(node==(Node*)0) {
+        if(node==nullptr) {
           _ostr << indent << "    appearance->material = NULL" << endl;    
         } else if(node->isMaterial()) {
-          Material* material = (Material*)node;
+          auto* material = dynamic_cast<Material*>(node);
           const Color& dc = material->getDiffuseColor();
           _ostr << indent
                 << "    diffuseColor = [ "
@@ -79,14 +80,14 @@ PolygonMeshTest::PolygonMeshTest
                 << " ]" << endl;    
         }
       }
-      
+
       node = shape->getGeometry();
-      if(node==(Node*)0) {
+      if(node==nullptr) {
         _ostr << indent << "    geometry = NULL" << endl;    
       } else if(node->isIndexedFaceSet()) {
         _ostr << indent
               << "    geometry IndexedFaceSet[" << nIndexedFaceSet << "] {" << endl;
-        IndexedFaceSet* ifs = (IndexedFaceSet*)node;
+        auto* ifs = dynamic_cast<IndexedFaceSet*>(node);
 
         int nVifs = ifs->getNumberOfCoord();
         vector<int>& coordIndex = ifs->getCoordIndex();
@@ -96,6 +97,48 @@ PolygonMeshTest::PolygonMeshTest
         _ostr << indent << "      PolygonMesh(nV,coordIndex) {" << endl;
 
         PolygonMesh pMesh(nVifs,coordIndex);
+        assert(pMesh.getDst(2) == 2);
+        assert(pMesh.getDst(6) == 3);
+        assert(pMesh.getDst(5) == 0);
+
+        assert(pMesh.getNext(0) == 1);
+        assert(pMesh.getNext(1) == 2);
+        assert(pMesh.getNext(2) == 0);
+
+        assert(pMesh.getNext(8) == 9);
+        assert(pMesh.getNext(9) == 10);
+        assert(pMesh.getNext(10) == 8);
+
+        assert(pMesh.getNext(12) == 13);
+        assert(pMesh.getNext(13) == 14);
+        assert(pMesh.getNext(14) == 12);
+
+        assert(pMesh.getPrev(10) == 9);
+        assert(pMesh.getPrev(9) == 8);
+        assert(pMesh.getPrev(8) == 10);
+
+        assert(pMesh.getPrev(2) == 1);
+        assert(pMesh.getPrev(1) == 0);
+        assert(pMesh.getPrev(0) == 2);
+
+        assert(pMesh.getPrev(14) == 13);
+        assert(pMesh.getPrev(13) == 12);
+        assert(pMesh.getPrev(12) == 14);
+
+        assert(pMesh.getTwin(0) == 14);
+        assert(pMesh.getTwin(8) == 13);
+        assert(pMesh.getTwin(6) == 9);
+
+        assert(pMesh.getNumberOfEdgeHalfEdges(0) == 2);
+        assert(pMesh.getNumberOfEdgeHalfEdges(1) == 2);
+        assert(pMesh.getNumberOfEdgeHalfEdges(2) == 2);
+        assert(pMesh.getNumberOfEdgeHalfEdges(3) == 2);
+        assert(pMesh.getNumberOfEdgeHalfEdges(4) == 2);
+        assert(pMesh.getNumberOfEdgeHalfEdges(5) == 2);
+
+        assert(pMesh.getEdgeHalfEdge(0, 0) == 0);
+        assert(pMesh.getEdgeHalfEdge(0, 1) == 14);
+        assert(pMesh.getEdgeHalfEdge(0, 2) == -1);
 
         int nV = pMesh.getNumberOfVertices();
         int nE = pMesh.getNumberOfEdges();
@@ -131,7 +174,7 @@ PolygonMeshTest::PolygonMeshTest
             nE_other++;
           }
         }
-
+
         for(iV=0;iV<nV;iV++) {
           if(pMesh.isBoundaryVertex(iV))
             nV_boundary++;

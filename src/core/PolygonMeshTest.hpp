@@ -38,9 +38,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
-
-#ifndef _POLYGON_MESH_TEST_HPP_
-#define _POLYGON_MESH_TEST_HPP_
+
+#pragma once
 
 #include <iostream>
 #include <wrl/SceneGraph.hpp>
@@ -50,12 +49,10 @@ class PolygonMeshTest {
   
 public:
 
-  PolygonMeshTest(SceneGraph& wrl, const string& indent="", ostream& ostr=cout);
+  PolygonMeshTest(SceneGraph& sceneGraph, const std::string& indent="", std::ostream& ostr=cout);
 
 private:
 
-  ostream& _ostr;
+  std::ostream& _ostr;
 
 };
-
-#endif /* _POLYGON_MESH_TEST_HPP_ */

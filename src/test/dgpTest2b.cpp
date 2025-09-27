@@ -221,11 +221,13 @@ int main(int argc, char **argv) {
       }
 
       if (D._removeNormal) {
+        ifs->setNormalPerVertex(true);
         ifs->getNormal().clear();
         ifs->getNormalIndex().clear();
       }
 
       if (D._removeColor) {
+        ifs->setColorPerVertex(true);
         ifs->getColor().clear();
         ifs->getColorIndex().clear();
       }

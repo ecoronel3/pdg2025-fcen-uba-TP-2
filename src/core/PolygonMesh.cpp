@@ -38,9 +38,9 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
-
-#include <iostream>
+
 #include "PolygonMesh.hpp"
+
 #include "Partition.hpp"
 
 PolygonMesh::PolygonMesh(const int nVertices, const vector<int>& coordIndex):
@@ -75,7 +75,7 @@ PolygonMesh::PolygonMesh(const int nVertices, const vector<int>& coordIndex):
   /*  / iC10 --> iC11  \  */
   /* /                  \ */
 
-  // oposite orientation
+  // opposite orientation
   /* \                  / */
   /*  \ iC01 --> iC00  /  */
   /*   X ---- iE ---- X   */
@@ -90,7 +90,7 @@ PolygonMesh::PolygonMesh(const int nVertices, const vector<int>& coordIndex):
 
   // note that the partition will end up with the corner separators as
   // singletons, but it doesn't matter for the last step, and
-  // the partition will be deleteted upon return
+  // the partition will be deleted upon return
   
   // 4) count number of parts per vertex
   //    - initialize _nPartsVertex array to 0's

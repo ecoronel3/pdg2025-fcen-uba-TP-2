@@ -38,9 +38,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
-
-#ifndef _POLYGONMESH_HPP_
-#define _POLYGONMESH_HPP_
+
+#pragma once
 
 #include <vector>
 #include "HalfEdges.hpp"
@@ -72,7 +71,7 @@ public:
   // int     getNumberOfEdgeHalfEdges(const int iE);
   // int     getEdgeHalfEdge(const int iE, const int j);
 
-             PolygonMesh(const int nV, const vector<int>& coordIndex);
+   PolygonMesh(int nV, const vector<int>& coordIndex);
 
   // number of -1's in the coordIndex argument
 
@@ -94,7 +93,7 @@ public:
   // to the edge iE; otherwise it returns false
 
      bool    isEdgeFace(const int iE, const int iF)    const;
-
+
   // edges are classified as boundary, regular, or singular depending
   // on the number of incident faces: 1=boundary, 2=regular, 3 or
   // more=singular
@@ -164,15 +163,13 @@ public:
   // boundary edge
 
      bool    hasBoundary()                             const;
-  
+
 private:
 
   // consider these private variables a suggestion
   // feel free to decide how to implement this class
 
-  vector<int>      _nPartsVertex;
+  vector<int> _nPartsVertex;
   vector<bool> _isBoundaryVertex;
   
 };
-
-#endif /* _POLYGONMESH_HPP_ */

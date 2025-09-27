@@ -38,14 +38,9 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
-
-#ifndef _GRAPH_HPP_
-#define _GRAPH_HPP_
+#pragma once
 
-#include <vector>
 #include "Edges.hpp"
-
-using namespace std;
 
 class Graph : public Edges {
 
@@ -62,12 +57,10 @@ public:
   // int     getVertex0(const int iE)                  const;
   // int     getVertex1(const int iE)                  const;
 
-          Graph(const int nV);
+  explicit Graph(int nV);
 
-  void    reset(const int nV);
+  void reset(int nV);
 
-  int     insertEdge(const int iV0, const int iV1);
+  int insertEdge(int iV0, int iV1);
 
 };
-
-#endif /* _GRAPH_HPP_ */
