@@ -44,8 +44,6 @@
 #include <vector>
 #include "HalfEdges.hpp"
 
-using namespace std;
-
 class PolygonMesh : public HalfEdges {
 
 public:
@@ -71,51 +69,54 @@ public:
   // int     getNumberOfEdgeHalfEdges(const int iE);
   // int     getEdgeHalfEdge(const int iE, const int j);
 
-   PolygonMesh(int nV, const vector<int>& coordIndex);
+   PolygonMesh(int nV, const std::vector<int>& coordIndex);
 
-  // number of -1's in the coordIndex argument
+  /**
+   * number of -1's in the coordIndex argument
+   *
+   */
+   int getNumberOfFaces() const;
 
-     int     getNumberOfFaces()                        const;
+  /**
+   * number of faces incident to each edge; note that this is equal to the number of half edges incident to each edge
+   *
+   */
+   int getNumberOfEdgeFaces(int iE) const;
 
-  // number of faces incident to each edge; note that this is equal to
-  // the number of half edges incident to each edge
+  /**
+   * if the arguments fall within their respective ranges, this method returns the j-th face
+   * in the list of faces incident to the edge iE;
+   * and it returns -1 if either argument is out of range
+   *
+   */
+   int getEdgeFace(int iE, int j) const;
 
-     int     getNumberOfEdgeFaces(const int iE)        const;
-
-  // if the arguments fall within their respective ranges, this method
-  // returns the j-th face in the list of faces incident to the edge
-  // iE; and it returns -1 if either argument is out of range
-
-     int     getEdgeFace(const int iE, const int j)    const;
-
-  // if the arguments fall within their respective ranges, this method
-  // returns returns true if iF is found in the list of faces incident
-  // to the edge iE; otherwise it returns false
-
-     bool    isEdgeFace(const int iE, const int iF)    const;
+  /**
+   * if the arguments fall within their respective ranges, this method returns true if iF is found
+   * in the list of faces incident to the edge iE; otherwise it returns false
+   *
+   */
+   bool isEdgeFace(int iE, int iF) const;
 
   // edges are classified as boundary, regular, or singular depending
   // on the number of incident faces: 1=boundary, 2=regular, 3 or
   // more=singular
+   bool isBoundaryEdge(int iE) const;
+   bool isRegularEdge(int iE) const;
+   bool isSingularEdge(int iE) const;
 
-     bool    isBoundaryEdge(const int iE)               const;
-     bool    isRegularEdge(const int iE)               const;
-     bool    isSingularEdge(const int iE)              const;
+    // a vertex is boundary if and only if it is the end of a boundary edge
+    bool isBoundaryVertex(int iV) const;
 
-  // a vertex is boundary if and only if it is the end of a boundary
-  // edge
+    // a vertex is internal if and only if it is not a boundary edge
+    bool isInternalVertex(int iV) const;
 
-     bool    isBoundaryVertex(const int iV)            const;
-
-  // a vertex is internal if and only if it is not a boundary edge
-
-     bool    isInternalVertex(const int iV)            const;
-
-  // a vertex is singular if the number of connected components in the
-  // subgraph of the dual graph defined by the subset of faces
-  // incident to the vertex is larger than 1; otherwise it is regular
-
-     bool    isSingularVertex(const int iV)            const;
+  /**
+   * a vertex is singular if the number of connected components in the subgraph of the dual
+   * graph defined by the subset of faces incident to the vertex is larger than 1; otherwise it is regular
+   *
+   */
+    bool isSingularVertex(int iV) const;
 
   // a way to determine which vertices are singular and which are
   // regular is to construct a partition of the corners of the mesh,
@@ -154,22 +155,20 @@ public:
   // vertex, then the vertex is regular. If two or more of these parts
   // point to a given vertex, then the vertex is singular. 
 
-  // the polygon mesh is regular if and only if it does not have any
-  // singular edges and it does not have any singular vertices
+   // the polygon mesh is regular if and only if it does not have any
+   // singular edges and it does not have any singular vertices
+   bool isRegular() const;
 
-     bool    isRegular()                               const;
-
-  // the polygon mesh has boundary if and only if it has at least 1
-  // boundary edge
-
-     bool    hasBoundary()                             const;
+   // the polygon mesh has boundary if and only if it has at least 1
+   // boundary edge
+   bool hasBoundary() const;
 
 private:
 
   // consider these private variables a suggestion
   // feel free to decide how to implement this class
 
-  vector<int> _nPartsVertex;
-  vector<bool> _isBoundaryVertex;
-  
+  std::vector<int> _nPartsVertex;
+  std::vector<bool> _isBoundaryVertex;
+  int _numberOfFaces;
 };
