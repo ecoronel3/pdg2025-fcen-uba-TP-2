@@ -41,6 +41,9 @@
 
 #include "PolygonMesh.hpp"
 
+#include <set>
+#include <unordered_map>
+
 #include "Partition.hpp"
 
 PolygonMesh::PolygonMesh(const int nVertices, const std::vector<int>& coordIndex):
@@ -87,11 +90,15 @@ PolygonMesh::PolygonMesh(const int nVertices, const std::vector<int>& coordIndex
 
   for (int iE = 0; iE < nE; ++iE) {
     if (getNumberOfEdgeHalfEdges(iE) == 2) {
-      const int iC1 = getEdgeHalfEdge(iE, 0);
-      const int iC2 = getEdgeHalfEdge(iE, 1);
-      partition.join(
-        std::min(iC1, iC2), std::max(iC1, iC2));
-      // ???
+      const int iC00 = getEdgeHalfEdge(iE, 0);
+      const int iC01 = getNext(iC00);
+      const int iC10 = getEdgeHalfEdge(iE, 1);
+      const int iC11 = getNext(iC10);
+
+      // TODO: i am not checking orientation
+      partition.join(iC00, iC11);
+      partition.join(iC01, iC10);
+
     }
   }
 
@@ -129,13 +136,20 @@ PolygonMesh::PolygonMesh(const int nVertices, const std::vector<int>& coordIndex
   //      vertex index, but multiple subsets may correspond to the
   //      same vertex index, indicating that the vertex is singular
 
+  std::set<std::pair<int,int>> vertexMap;
   for (int iC = 0; iC < nC; ++iC) {
-    // - for edge boundary iE label its two end vertices as boundary
     if (coordIndex[iC] < 0)
       continue;
 
-    const int iV = getSrc(iC);
-    _nPartsVertex[iV] += partition.getSize(iC);
+    const int idPart = partition.find(iC);
+    if (partition.getSize(idPart) > 0) {
+      const int iV = getSrc(iC);
+      auto vertPart = std::make_pair(iV, idPart);
+      if (!vertexMap.contains(vertPart)) {
+        vertexMap.insert(vertPart);
+        _nPartsVertex[iV]++;
+      }
+    }
   }
 }
 

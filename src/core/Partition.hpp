@@ -61,14 +61,14 @@ public:
 
   // create a partition of the N elements {0,1,2,...,N-1} where
   // every element is a singleton {0},{1},{2},...,{N-1}
-          Partition(const int nElements);
+  explicit Partition(int nElements);
 
   // delete the current partition and create a new partition of the N
   // elements {0,1,2,...,N-1} where every element is a singleton
   // {0},{1},{2},...,{N-1}; the number of elements N can be different
   // from the one previously set by the constructor or by a previous
   // call to this method
-  virtual void reset(const int nElements);
+  virtual void reset(int nElements);
 
   // returns the current number of elements; i.e. the value of the
   // parameter N passed to the constructor or to the reset(N) method 
@@ -82,7 +82,7 @@ public:
   // the class assigns each part a unique non-negative ID number; this
   // method return the part ID number of the part containing element i;
   // if the element index is out of range this method returns -1
-  int     find(const int i);
+  int     find(int i);
 
   // if elements i and j belong to the same part, this method returns
   // the ID of the part containing the two elements; otherwise, the
@@ -92,11 +92,11 @@ public:
   // IDs of the original two parts; the old IDs are not longer valid;
   // if either one of the two element indices is out of range this
   // method returns -1
-  virtual int join(const int i, const int j);
+  virtual int join(int i, int j);
 
   // returns the number of elements in the part containing the element
   // i; if the element index is out of range this method returns 0
-  int     getSize(const int i)           const;
+  int getSize(int i)           const;
   
 protected: // so that they accesible to SplittablePartition methods
 

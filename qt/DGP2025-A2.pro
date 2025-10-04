@@ -50,6 +50,7 @@ macx {
     OTHER_CPLUSPLUSFLAGS += -feliminate-unused-debug-types
     # LIBS += -framework Foundation -framework QTKit 
     LIBS += -framework CoreFoundation -framework IOkit
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 13.3
 }
 
 CONFIG(release, debug|release) {

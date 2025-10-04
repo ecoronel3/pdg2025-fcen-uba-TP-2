@@ -9,6 +9,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if (APPLE)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "13.3" CACHE STRING "Minimum OS X deployment version" FORCE)
+endif()
+
 # This variable is used to locate the bin directory where the dgpTest
 # application will be installed
 set(CMAKE_INSTALL_PREFIX
